@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Аналітика AutoPro 2026</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0A2540; padding-bottom: 20px; margin-bottom: 40px; }
+        .logo { font-size: 24px; font-weight: 900; color: #0A2540; }
+        .logo span { color: #FF6B00; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: #f8f9fa; padding: 20px; border-radius: 10px; text-align: center; border-left: 4px solid #FF6B00; }
+        .stat-value { font-size: 32px; font-weight: 900; color: #0A2540; }
+        .stat-label { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+        th { text-align: left; padding: 15px; border-bottom: 2px solid #0A2540; font-size: 12px; text-transform: uppercase; color: #666; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+        tr:hover { background: #f8f9fa; }
+        .status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .status-PENDING { background: #fff3cd; color: #856404; }
+        .status-CONFIRMED { background: #cce5ff; color: #004085; }
+        .status-IN_PROGRESS { background: #d1ecf1; color: #0c5460; }
+        .status-COMPLETED { background: #d4edda; color: #155724; }
+        .status-CANCELLED { background: #f8d7da; color: #721c24; }
+        .footer { font-size: 10px; color: #999; text-align: center; margin-top: 100px; border-top: 1px solid #eee; padding-top: 20px; }
+        @media print {
+            .no-print { display: none; }
+            body { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="background: #0A2540; color: white; padding: 15px; text-align: center; position: sticky; top: 0;">
+        Аналітика AutoPro 2026
+        <button onclick="window.print()" style="background: #FF6B00; border: none; color: white; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-left: 20px;">
+            ДРУКУВАТИ / ЗБЕРЕГТИ ЯК PDF
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">AUTOPRO <span>2026</span></div>
+            <div style="text-align: right;">
+                <div style="font-weight: 900;">АНАЛІТИКА</div>
+                <div style="font-size: 12px; color: #666;">Звітність</div>
+            </div>
+        </div>
+
+        {% with total_bookings=bookings.count %}
+        {% with total_revenue=bookings|dictsort:"total_cost"|last %}
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ total_bookings }}</div>
+                <div class="stat-label">Всього замовлень</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ bookings.count }}</div>
+                <div class="stat-label">Активних</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    {% if total_revenue %}{{ total_revenue.total_cost|floatformat:0 }}{% else %}0{% endif %}
+                </div>
+                <div class="stat-label">Дохід (грн)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    {% if total_revenue %}{{ total_revenue.total_cost|floatformat:0 }}{% else %}0{% endif %}
+                </div>
+                <div class="stat-label">Середній чек</div>
+            </div>
+        </div>
+        {% endwith %}
+        {% endwith %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Клієнт</th>
+                    <th>Автомобіль</th>
+                    <th>Дата</th>
+                    <th>Статус</th>
+                    <th style="text-align: right;">Сума (грн)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>#{{ booking.id }}</td>
+                    <td>
+                        <strong>{{ booking.client.username }}</strong><br>
+                        <span style="font-size: 12px; color: #666;">{{ booking.client.email|default:booking.client.username }}</span>
+                    </td>
+                    <td>
+                        {{ booking.car.model }}<br>
+                        <span style="font-size: 12px; color: #666;">{{ booking.car.license_plate }}</span>
+                    </td>
+                    <td>{{ booking.scheduled_at|date:"d.m.Y H:i" }}</td>
+                    <td>
+                        <span class="status status-{{ booking.status }}">{{ booking.get_status_display }}</span>
+                    </td>
+                    <td style="text-align: right; font-weight: bold;">{{ booking.total_cost|floatformat:2 }} ₴</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #666;">Немає даних для відображення</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="footer">
+            AutoService Pro 2026 — Аналітика <br>
+            м. Київ, вул. Шовковична 12 | +38 (044) 2026-000 | autopro2026.ua
+        </div>
+    </div>
+</body>
+</html>

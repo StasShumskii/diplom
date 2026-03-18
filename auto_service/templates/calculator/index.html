@@ -1,0 +1,436 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Калькулятор - AutoTech Pro{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="glass-panel rounded-[32px] p-8 text-center">
+        <h1 class="text-4xl font-bold text-white mb-2">КАЛЬКУЛЯТОР ВАРТОСТІ</h1>
+        <p class="text-gray-400">Розрахуйте орієнтовну вартість технічного обслуговування вашого автомобіля</p>
+    </div>
+
+    <!-- Steps -->
+    <div class="flex justify-center gap-4 flex-wrap">
+        <div class="flex items-center gap-2 cyber-card px-4 py-2 rounded-xl step-indicator" data-step="1">
+            <div class="w-8 h-8 rounded-full bg-cyber-purple flex items-center justify-center font-bold text-white step-num">1</div>
+            <span class="text-white font-medium">Авто</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+        </div>
+        <div class="flex items-center gap-2 cyber-card px-4 py-2 rounded-xl step-indicator" data-step="2">
+            <div class="w-8 h-8 rounded-full bg-cyber-cyan flex items-center justify-center font-bold text-white step-num">2</div>
+            <span class="text-white font-medium">Послуги</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+        </div>
+        <div class="flex items-center gap-2 cyber-card px-4 py-2 rounded-xl step-indicator" data-step="3">
+            <div class="w-8 h-8 rounded-full bg-cyber-pink flex items-center justify-center font-bold text-white step-num">3</div>
+            <span class="text-white font-medium">Результат</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Form -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Car Selection -->
+            <div class="cyber-card p-6 rounded-[32px]">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="car" class="w-5 h-5 text-cyber-purple"></i>
+                    Вибір автомобіля
+                </h3>
+                
+                <!-- Quick Add Car Button -->
+                {% if user.is_authenticated %}
+                <div class="mb-4">
+                    <label class="flex items-center gap-3 p-4 rounded-xl border border-cyber-purple/30 bg-cyber-surface cursor-pointer hover:bg-cyber-purple/10 transition" onclick="document.getElementById('car-type-my').checked = true; toggleCarForm('my')">
+                        <input type="radio" name="car_type" id="car-type-my" value="my" class="radio radio-primary" checked onchange="toggleCarForm('my')">
+                        <div class="flex-1">
+                            <span class="text-white font-medium">Мій автомобіль з гаража</span>
+                            <p class="text-xs text-gray-500">Швидкий вибір з вашого гаража</p>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                    </label>
+                    <label class="flex items-center gap-3 p-4 rounded-xl border border-cyber-purple/20 bg-cyber-dark cursor-pointer hover:bg-cyber-purple/10 transition mt-2" onclick="document.getElementById('car-type-new').checked = true; toggleCarForm('new')">
+                        <input type="radio" name="car_type" id="car-type-new" value="new" class="radio radio-primary" onchange="toggleCarForm('new')">
+                        <div class="flex-1">
+                            <span class="text-white font-medium">Новий розрахунок</span>
+                            <p class="text-xs text-gray-500">Вказати інший автомобіль</p>
+                        </div>
+                        <i data-lucide="plus-circle" class="w-5 h-5 text-gray-500"></i>
+                    </label>
+                </div>
+                
+                <div id="my-cars-form" class="space-y-4">
+                    {% if cars %}
+                    <div class="space-y-2">
+                        {% for car in cars %}
+                        <label class="car-select-item flex items-center gap-3 p-4 rounded-xl border border-cyber-purple/20 bg-cyber-dark cursor-pointer hover:bg-cyber-purple/10 transition" onclick="selectMyCar({{ car.id }}, '{{ car.model }}')">
+                            <input type="radio" name="my_car" value="{{ car.id }}" class="radio radio-primary">
+                            <div class="w-12 h-12 rounded-xl bg-cyber-purple/20 flex items-center justify-center">
+                                <i data-lucide="car" class="w-6 h-6 text-cyber-purple"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-white">{{ car.model }}</div>
+                                <div class="text-xs text-gray-500">{{ car.license_plate }} • {{ car.year }}</div>
+                            </div>
+                            <div class="text-cyber-cyan text-sm">{{ car.mileage }} км</div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <button class="btn btn-outline border-cyber-purple/30 w-full" onclick="document.getElementById('add-car-modal').showModal()">
+                        <i data-lucide="plus" class="w-4 h-4 mr-2"></i>Додати нове авто в гараж
+                    </button>
+                    {% else %}
+                    <div class="text-center py-6">
+                        <i data-lucide="car" class="w-12 h-12 mx-auto text-gray-600 mb-3"></i>
+                        <p class="text-gray-500 mb-3">У вас немає авто в гаражі</p>
+                        <button class="btn-cyber" onclick="document.getElementById('add-car-modal').showModal()">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i>Додати авто
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <div id="new-car-form" class="space-y-4 {% if user.is_authenticated %}hidden{% endif %}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Марка</label>
+                            <select name="brand" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30"
+                                    hx-get="{% url 'cars:api_models' %}" hx-target="#model-select" hx-trigger="change">
+                                <option value="">Оберіть марку</option>
+                                {% for brand in brands %}
+                                    <option value="{{ brand.id }}">{{ brand.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Модель</label>
+                            <select name="model" id="model-select" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                                <option value="">Спочатку оберіть марку</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Рік</label>
+                            <input type="number" name="year" value="2020" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Пробіг (км)</label>
+                            <input type="number" name="mileage" value="50000" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Services Selection -->
+            <div class="cyber-card p-6 rounded-[32px]">
+                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="wrench" class="w-5 h-5 text-cyber-cyan"></i>
+                    Вибір послуг
+                    <span class="text-sm text-gray-500 ml-auto" id="selected-services-count">0 обрано</span>
+                </h3>
+                
+                <!-- Category Tabs -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <button class="btn btn-sm btn-cyber service-filter" onclick="filterServices('all')">Всі</button>
+                    {% for cat in categories %}
+                    <button class="btn btn-sm btn-outline border-cyber-purple/30 service-filter" onclick="filterServices('{{ cat.id }}')">{{ cat.name }}</button>
+                    {% endfor %}
+                </div>
+                
+                <!-- Search -->
+                <div class="relative mb-4">
+                    <input type="text" id="service-search" placeholder="Пошук послуг..." class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30 pl-10" oninput="searchServices(this.value)">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[400px] overflow-y-auto pr-2" id="services-list">
+                    {% for service in services %}
+                    <label class="service-item flex items-center gap-3 p-3 rounded-xl border border-cyber-purple/20 bg-cyber-surface cursor-pointer hover:bg-cyber-purple/10 transition" data-category="{{ service.category.id }}" data-name="{{ service.name|lower }}">
+                        <input type="checkbox" name="services" value="{{ service.id }}" class="checkbox checkbox-primary" data-price="{{ service.base_price }}" data-time="{{ service.estimated_time|default:1 }}" onchange="updateTotal(); updateSelectedCount();">
+                        <div class="flex-grow">
+                            <div class="text-sm font-medium text-white">{{ service.name }}</div>
+                            <div class="text-xs text-gray-500">{{ service.category.name }}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-cyber-cyan font-bold">{{ service.base_price }} ₴</div>
+                            <div class="text-xs text-gray-500">{{ service.estimated_time|default:1 }} год</div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Result -->
+        <div class="lg:col-span-1">
+            <div class="cyber-card p-6 rounded-[32px] sticky top-24 space-y-6">
+                <h3 class="text-xl font-bold text-white">Результат</h3>
+                
+                <!-- Selected Car -->
+                <div id="selected-car-display" class="p-4 rounded-xl bg-cyber-purple/10 border border-cyber-purple/20 hidden">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-cyber-purple/20 flex items-center justify-center">
+                            <i data-lucide="car" class="w-5 h-5 text-cyber-purple"></i>
+                        </div>
+                        <div>
+                            <div class="text-sm text-gray-400">Автомобіль</div>
+                            <div class="font-medium text-white" id="selected-car-name">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selected Services -->
+                <div id="selected-services-list" class="space-y-2 max-h-40 overflow-y-auto">
+                    <div class="text-sm text-gray-500 text-center py-4">Оберіть послуги</div>
+                </div>
+                
+                <div class="border-t border-cyber-purple/20 pt-4 space-y-3">
+                    <div class="flex justify-between text-gray-400">
+                        <span>Послуг:</span>
+                        <span id="services-count">0</span>
+                    </div>
+                    <div class="flex justify-between text-gray-400">
+                        <span>Орієнтовний час:</span>
+                        <span id="total-time">0 год</span>
+                    </div>
+                    <div class="border-t border-cyber-purple/20 pt-3">
+                        <div class="flex justify-between text-xl font-bold">
+                            <span class="text-white">Разом:</span>
+                            <span class="gradient-text" id="total-price">0 ₴</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <a href="{% url 'bookings:create' %}" class="btn-cyber w-full py-3 rounded-xl flex items-center justify-center gap-2">
+                        <span>ЗАПИСАТИСЬ</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </a>
+                    <button onclick="saveCalculation()" class="btn btn-outline border-cyber-purple/30 w-full">
+                        <i data-lucide="save" class="w-4 h-4 mr-2"></i>ЗБЕРЕГТИ РОЗРАХУНОК
+                    </button>
+                </div>
+                
+                <p class="text-xs text-gray-500 text-center">
+                    * Точна вартість може відрізнятись після огляду
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Car Modal -->
+<dialog id="add-car-modal" class="modal">
+    <div class="modal-box cyber-card max-w-lg">
+        <h3 class="font-bold text-2xl mb-6 text-white text-center">Додати автомобіль</h3>
+        <form method="post" action="{% url 'cars:add_car_ajax' %}" class="space-y-4" id="add-car-form">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Марка</label>
+                <select name="brand" id="car-brand-select" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30" hx-get="{% url 'cars:api_models' %}" hx-target="#new-car-model" onchange="updateCarPreview()">
+                    <option value="">Оберіть марку</option>
+                    {% for brand in brands %}
+                        <option value="{{ brand.id }}" data-name="{{ brand.name }}">{{ brand.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Модель</label>
+                <select name="model" id="new-car-model" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30" onchange="updateCarPreview()">
+                    <option value="">Спочатку оберіть марку</option>
+                </select>
+            </div>
+            
+            <div id="car-preview" class="hidden cyber-card p-4 rounded-xl bg-gradient-to-r from-cyber-purple/10 to-cyber-cyan/10">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-r from-cyber-purple to-cyber-cyan flex items-center justify-center">
+                        <i data-lucide="car" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-white text-lg" id="preview-car-name">Volkswagen Golf</div>
+                        <div class="text-sm text-gray-400" id="preview-car-details">2020 • АА 1234 АА</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Рік</label>
+                    <select name="year" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                        <option value="">Рік</option>
+                        {% for year in "20262025202420232022202120202019201820172016201520142013201220112010"|make_list %}
+                        {% with year=forloop.counter|add:2009 %}
+                        <option value="{{ year }}">{{ year }}</option>
+                        {% endwith %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Держ. номер</label>
+                    <input type="text" name="license_plate" placeholder="АА 1234 АА" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" oninput="this.value = this.value.toUpperCase()">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">VIN (необов'язково)</label>
+                <input type="text" name="vin" placeholder="XXXXXXXXXXXXXXXXX" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" maxlength="17">
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_primary" id="is-primary-car" class="checkbox checkbox-primary checkbox-sm">
+                <label for="is-primary-car" class="text-sm text-gray-300">Зробити основним автомобілем</label>
+            </div>
+            <div class="modal-action justify-center">
+                <button type="button" class="btn btn-ghost" onclick="document.getElementById('add-car-modal').close()">Скасувати</button>
+                <button type="submit" class="btn-cyber">Додати</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<script>
+function updateCarPreview() {
+    const brandSelect = document.getElementById('car-brand-select');
+    const modelSelect = document.getElementById('new-car-model');
+    const preview = document.getElementById('car-preview');
+    const previewName = document.getElementById('preview-car-name');
+    
+    const brandName = brandSelect.options[brandSelect.selectedIndex]?.text || '';
+    const modelName = modelSelect.options[modelSelect.selectedIndex]?.text || '';
+    
+    if (brandName && modelName) {
+        preview.classList.remove('hidden');
+        previewName.textContent = brandName + ' ' + modelName;
+    } else {
+        preview.classList.add('hidden');
+    }
+}
+
+document.getElementById('add-car-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('add-car-modal').close();
+            location.reload();
+        } else {
+            alert(data.message || 'Помилка при додаванні автомобіля');
+        }
+    })
+    .catch(error => {
+        alert('Помилка: ' + error);
+    });
+});
+function toggleCarForm(type) {
+    const myForm = document.getElementById('my-cars-form');
+    const newForm = document.getElementById('new-car-form');
+    
+    if (type === 'my') {
+        myForm.classList.remove('hidden');
+        newForm.classList.add('hidden');
+    } else {
+        myForm.classList.add('hidden');
+        newForm.classList.remove('hidden');
+    }
+}
+
+function selectMyCar(carId, carName) {
+    document.getElementById('selected-car-display').classList.remove('hidden');
+    document.getElementById('selected-car-name').textContent = carName;
+}
+
+function filterServices(categoryId) {
+    document.querySelectorAll('.service-filter').forEach(btn => {
+        btn.classList.remove('btn-cyber');
+        btn.classList.add('btn-outline', 'border-cyber-purple/30');
+    });
+    event.target.classList.add('btn-cyber');
+    event.target.classList.remove('btn-outline', 'border-cyber-purple/30');
+    
+    const items = document.querySelectorAll('.service-item');
+    items.forEach(item => {
+        if (categoryId === 'all' || item.dataset.category === categoryId) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function searchServices(query) {
+    const items = document.querySelectorAll('.service-item');
+    items.forEach(item => {
+        if (item.dataset.name.includes(query.toLowerCase())) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function updateSelectedCount() {
+    const checkboxes = document.querySelectorAll('input[name="services"]:checked');
+    document.getElementById('selected-services-count').textContent = checkboxes.length + ' обрано';
+    
+    const list = document.getElementById('selected-services-list');
+    list.innerHTML = '';
+    
+    checkboxes.forEach(cb => {
+        const item = cb.closest('.service-item');
+        const name = item.querySelector('.text-sm').textContent;
+        const price = item.querySelector('.text-cyber-cyan').textContent;
+        
+        list.innerHTML += `
+            <div class="flex justify-between items-center text-sm p-2 rounded bg-cyber-surface">
+                <span class="text-gray-300">${name}</span>
+                <span class="text-cyber-cyan">${price}</span>
+            </div>
+        `;
+    });
+    
+    if (checkboxes.length === 0) {
+        list.innerHTML = '<div class="text-sm text-gray-500 text-center py-4">Оберіть послуги</div>';
+    }
+}
+
+function updateTotal() {
+    const checkboxes = document.querySelectorAll('input[name="services"]:checked');
+    let total = 0;
+    let count = checkboxes.length;
+    let time = 0;
+    
+    checkboxes.forEach(cb => {
+        total += parseInt(cb.dataset.price);
+        time += parseFloat(cb.dataset.time);
+    });
+    
+    document.getElementById('services-count').textContent = count;
+    document.getElementById('total-price').textContent = total.toLocaleString() + ' ₴';
+    document.getElementById('total-time').textContent = time.toFixed(1) + ' год';
+}
+
+function saveCalculation() {
+    const total = document.getElementById('total-price').textContent;
+    if (total === '0 ₴') {
+        alert('Спочатку оберіть послуги!');
+        return;
+    }
+    alert('Розрахунок збережено! Ви можете використати його при записі на ТО.');
+}
+</script>
+{% endblock %}

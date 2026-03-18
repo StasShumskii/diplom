@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}Вихід - AutoTech Pro{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center px-4">
+    <div class="w-full max-w-md">
+        <div class="glass-panel rounded-[32px] p-8">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <a href="/" class="inline-flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-cyber-purple to-cyber-cyan flex items-center justify-center">
+                        <i data-lucide="wrench" class="text-white w-7 h-7"></i>
+                    </div>
+                </a>
+                <h1 class="text-3xl font-black text-white">ВИХІД</h1>
+                <p class="text-gray-400 mt-2">Ви впевнені, що хочете вийти?</p>
+            </div>
+
+            <!-- Logout Form -->
+            <form method="post" action="{% url 'account_logout' %}" class="space-y-5">
+                {% csrf_token %}
+                
+                {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+                {% endif %}
+
+                <div class="flex gap-4">
+                    <a href="{% url 'dashboard:home' %}" class="btn btn-ghost flex-1 h-12 rounded-xl text-base font-semibold border border-cyber-purple/30">
+                        СКАСУВАТИ
+                    </a>
+                    <button type="submit" class="btn-cyber flex-1 h-12 rounded-xl text-base font-semibold">
+                        ВИЙТИ
+                    </button>
+                </div>
+            </form>
+
+            <!-- Back to Home -->
+            <div class="text-center mt-6 pt-6 border-t border-cyber-purple/20">
+                <a href="{% url 'dashboard:home' %}" class="text-cyber-cyan font-semibold hover:underline">Повернутись на головну</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

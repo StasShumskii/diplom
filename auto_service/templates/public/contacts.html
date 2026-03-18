@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Контакти - AutoTech Pro{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="glass-panel rounded-[32px] p-8 text-center">
+        <h1 class="text-4xl font-bold text-white mb-2">КОНТАКТИ</h1>
+        <p class="text-gray-400">Зв'яжіться з нами будь-яким зручним способом</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Contact Info -->
+        <div class="space-y-6">
+            <!-- Main Office -->
+            <div class="cyber-card p-8 rounded-[32px]">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-cyber-purple/20 flex items-center justify-center">
+                        <i data-lucide="building-2" class="w-5 h-5 text-cyber-purple"></i>
+                    </div>
+                    ГОЛОВНИЙ ОФІС
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-cyber-surface">
+                        <div class="w-12 h-12 rounded-xl bg-cyber-purple/20 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="map-pin" class="w-6 h-6 text-cyber-purple"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">Адреса</h4>
+                            <p class="text-gray-300">м. Львів, вул. Городоцька 302</p>
+                            <p class="text-gray-500 text-sm mt-1">Черговка на в'їзді, парковка для клієнтів</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-cyber-surface">
+                        <div class="w-12 h-12 rounded-xl bg-cyber-cyan/20 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="phone" class="w-6 h-6 text-cyber-cyan"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">Телефон</h4>
+                            <p class="text-gray-300">+38 (032) 240-20-26</p>
+                            <p class="text-gray-500 text-sm mt-1">Безкоштовно по Україні</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-cyber-surface">
+                        <div class="w-12 h-12 rounded-xl bg-cyber-pink/20 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="mail" class="w-6 h-6 text-cyber-pink"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">Email</h4>
+                            <p class="text-gray-300">info@lviv.autotech.com.ua</p>
+                            <p class="text-gray-500 text-sm mt-1">Відповідаємо протягом 15 хвилин</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 rounded-xl bg-cyber-surface">
+                        <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="clock" class="w-6 h-6 text-green-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">Графік роботи</h4>
+                            <p class="text-gray-300">Цілодобово 24/7</p>
+                            <p class="text-gray-500 text-sm mt-1">Без вихідних та свят</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Networks -->
+            <div class="cyber-card p-8 rounded-[32px]">
+                <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-cyber-cyan/20 flex items-center justify-center">
+                        <i data-lucide="share-2" class="w-5 h-5 text-cyber-cyan"></i>
+                    </div>
+                    СОЦМЕРЕЖІ
+                </h2>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <a href="#" class="flex items-center gap-3 p-4 rounded-xl bg-cyber-surface hover:bg-cyber-purple/20 transition border border-cyber-purple/20">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                            <i data-lucide="instagram" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-white">Instagram</div>
+                            <div class="text-xs text-gray-500">@autotech_lviv</div>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="flex items-center gap-3 p-4 rounded-xl bg-cyber-surface hover:bg-cyber-cyan/20 transition border border-cyber-cyan/20">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                            <i data-lucide="facebook" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-white">Facebook</div>
+                            <div class="text-xs text-gray-500">AutoTechLviv</div>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="flex items-center gap-3 p-4 rounded-xl bg-cyber-surface hover:bg-cyber-pink/20 transition border border-cyber-pink/20">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center">
+                            <i data-lucide="youtube" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-white">YouTube</div>
+                            <div class="text-xs text-gray-500">AutoTech Pro</div>
+                        </div>
+                    </a>
+                    
+                    <a href="#" class="flex items-center gap-3 p-4 rounded-xl bg-cyber-surface hover:bg-cyber-purple/20 transition border border-cyber-purple/20">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                            <i data-lucide="send" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-white">Telegram</div>
+                            <div class="text-xs text-gray-500">@autotech_lviv</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="cyber-card p-8 rounded-[32px]">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-cyber-pink/20 flex items-center justify-center">
+                    <i data-lucide="message-square" class="w-5 h-5 text-cyber-pink"></i>
+                </div>
+                НАПИСАТИ НАМ
+            </h2>
+            
+            <form class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Ім'я</label>
+                        <input type="text" placeholder="Ваше ім'я" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Телефон</label>
+                        <input type="tel" placeholder="+38 (0__) ___-__-__" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" placeholder="your@email.com" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Тема</label>
+                    <select class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                        <option>Загальне питання</option>
+                        <option>Запис на ТО</option>
+                        <option>Скарга</option>
+                        <option>Пропозиція</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Повідомлення</label>
+                    <textarea placeholder="Ваше повідомлення..." class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 h-32"></textarea>
+                </div>
+                <button type="submit" class="btn-cyber w-full py-3 rounded-xl">
+                    <i data-lucide="send" class="w-4 h-4 mr-2"></i>НАДІСЛАТИ ПОВІДОМЛЕННЯ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Map Section -->
+    <div class="cyber-card p-4 rounded-[32px]">
+        <div class="rounded-2xl overflow-hidden h-[400px] bg-cyber-surface flex items-center justify-center relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-cyber-purple/10 to-cyber-cyan/10"></div>
+            <div class="text-center relative z-10">
+                <div class="w-20 h-20 mx-auto rounded-2xl bg-cyber-purple/20 flex items-center justify-center mb-4">
+                    <i data-lucide="map" class="w-10 h-10 text-cyber-purple"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-2">м. Львів, вул. Городоцька 302</h3>
+                <p class="text-gray-400 mb-4">Автосервіс "AutoTech Pro"</p>
+                <a href="https://maps.google.com/?q=Lviv+Hohodotska+302" target="_blank" class="btn-cyber inline-flex">
+                    <i data-lucide="navigation" class="w-4 h-4 mr-2"></i>ПРОКЛАСТИ МАРШРУТ
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="cyber-card p-6 rounded-2xl text-center">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-cyber-purple/20 flex items-center justify-center mb-4">
+                <i data-lucide="car" class="w-7 h-7 text-cyber-purple"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Зручна парковка</h3>
+            <p class="text-gray-400 text-sm">Безкоштовна парковка для клієнтів на 20 місць</p>
+        </div>
+        
+        <div class="cyber-card p-6 rounded-2xl text-center">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-cyber-cyan/20 flex items-center justify-center mb-4">
+                <i data-lucide="coffee" class="w-7 h-7 text-cyber-cyan"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Зона очікування</h3>
+            <p class="text-gray-400 text-sm">Комфортна зона очікування з чаєм та Wi-Fi</p>
+        </div>
+        
+        <div class="cyber-card p-6 rounded-2xl text-center">
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-cyber-pink/20 flex items-center justify-center mb-4">
+                <i data-lucide="credit-card" class="w-7 h-7 text-cyber-pink"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Оплата</h3>
+            <p class="text-gray-400 text-sm">Готівка, карта, безготівковий розрахунок</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

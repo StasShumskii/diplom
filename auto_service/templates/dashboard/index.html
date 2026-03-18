@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Мій Кабінет - AutoTech Pro{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="glass-panel rounded-[32px] p-8 scroll-animate">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-6">
+                <div class="w-20 h-20 rounded-full bg-gradient-to-r from-cyber-purple to-cyber-cyan p-1">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.username }}" class="w-full h-full rounded-full" />
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-white">{{ user.username }}</h1>
+                    <p class="text-gray-400">{{ user.email }}</p>
+                    {% if bonus_account %}
+                    <div class="flex items-center gap-2 mt-2">
+                        <span class="badge bg-cyber-purple/20 border-cyber-purple/30 text-cyber-purple font-semibold">Рівень {{ bonus_account.level }}</span>
+                        <span class="text-xl font-bold gradient-text">{{ bonus_account.points }} балів</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <a href="{% url 'bookings:create' %}" class="btn-cyber px-6 py-2.5 rounded-xl">ЗАПИСАТИСЬ</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <a href="{% url 'dashboard:profile' %}" class="cyber-card p-5 text-center rounded-xl hover:scale-[1.02] transition scroll-animate scroll-animate-delay-1">
+            <i data-lucide="user" class="w-8 h-8 mx-auto mb-2 text-cyber-purple"></i>
+            <div class="font-semibold text-white">Профіль</div>
+        </a>
+        <a href="{% url 'dashboard:service_history' %}" class="cyber-card p-5 text-center rounded-xl hover:scale-[1.02] transition scroll-animate scroll-animate-delay-2">
+            <i data-lucide="history" class="w-8 h-8 mx-auto mb-2 text-cyber-cyan"></i>
+            <div class="font-semibold text-white">Історія ТО</div>
+        </a>
+        <a href="{% url 'dashboard:bonus' %}" class="cyber-card p-5 text-center rounded-xl hover:scale-[1.02] transition scroll-animate scroll-animate-delay-3">
+            <i data-lucide="gift" class="w-8 h-8 mx-auto mb-2 text-cyber-pink"></i>
+            <div class="font-semibold text-white">Бонуси</div>
+        </a>
+        <a href="#" class="cyber-card p-5 text-center rounded-xl hover:scale-[1.02] transition scroll-animate scroll-animate-delay-4" onclick="document.getElementById('review-modal').showModal()">
+            <i data-lucide="star" class="w-8 h-8 mx-auto mb-2 text-yellow-500"></i>
+            <div class="font-semibold text-white">Відгук</div>
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="cyber-card p-5 rounded-xl text-center scroll-animate">
+            <div class="text-gray-400 text-sm">Всього візитів</div>
+            <div class="text-3xl font-bold gradient-text">{{ bookings|length }}</div>
+        </div>
+        <div class="cyber-card p-5 rounded-xl text-center scroll-animate scroll-animate-delay-1">
+            <div class="text-gray-400 text-sm">Мої авто</div>
+            <div class="text-3xl font-bold gradient-text">{{ cars|length|default:"0" }}</div>
+        </div>
+        <div class="cyber-card p-5 rounded-xl text-center scroll-animate scroll-animate-delay-2">
+            <div class="text-gray-400 text-sm">Бали</div>
+            <div class="text-3xl font-bold gradient-text">{{ bonus_account.points|default:"0" }}</div>
+        </div>
+        <div class="cyber-card p-5 rounded-xl text-center scroll-animate scroll-animate-delay-3">
+            <div class="text-gray-400 text-sm">Нагадувань</div>
+            <div class="text-3xl font-bold gradient-text">{{ reminders|length|default:"0" }}</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Bookings -->
+        <div class="lg:col-span-2 space-y-4">
+            <h2 class="text-2xl font-bold text-white">Мої записи</h2>
+            <div class="cyber-card overflow-hidden rounded-[24px]">
+                <table class="table w-full">
+                    <thead class="bg-cyber-dark">
+                        <tr class="text-gray-400">
+                            <th class="bg-transparent">Авто</th>
+                            <th class="bg-transparent">Дата</th>
+                            <th class="bg-transparent">Статус</th>
+                            <th class="bg-transparent text-right">Сума</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr class="border-t border-cyber-purple/10 hover:bg-cyber-purple/5">
+                            <td>
+                                <div class="font-semibold text-white">{{ booking.car.model }}</div>
+                                <div class="text-xs text-gray-500">{{ booking.car.license_plate }}</div>
+                            </td>
+                            <td class="text-gray-300">{{ booking.scheduled_at|date:"d.m.Y H:i" }}</td>
+                            <td>
+                                <span class="badge bg-cyber-purple/20 border-cyber-purple/30 text-cyber-purple">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="text-right font-bold text-cyber-cyan">{{ booking.total_cost }} ₴</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-8 text-center text-gray-500">Записів не знайдено</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- My Garage -->
+            <div class="space-y-4">
+                <h3 class="text-xl font-bold text-white">Мій гараж</h3>
+                {% for car in cars %}
+                <div class="cyber-card p-4 rounded-xl flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-cyber-purple/20 flex items-center justify-center">
+                        <i data-lucide="car" class="text-cyber-purple"></i>
+                    </div>
+                    <div>
+                        <div class="font-semibold text-white">{{ car.model }}</div>
+                        <div class="text-xs text-gray-500">{{ car.license_plate }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="cyber-card p-6 text-center text-gray-500 rounded-xl">
+                    <i data-lucide="car" class="w-10 h-10 mx-auto mb-2 opacity-30"></i>
+                    <p>Додайте авто в гараж</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Reminders -->
+            {% if reminders %}
+            <div class="space-y-3">
+                <h3 class="text-xl font-bold text-white">Нагадування</h3>
+                {% for reminder in reminders %}
+                <div class="cyber-card p-4 rounded-xl">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="bell" class="w-5 h-5 text-cyber-pink mt-0.5"></i>
+                        <div>
+                            <div class="font-semibold text-white">{{ reminder.title }}</div>
+                            <div class="text-xs text-gray-500">{{ reminder.reminder_date|date:"d.m.Y" }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Review Modal -->
+<dialog id="review-modal" class="modal">
+    <div class="modal-box cyber-card max-w-md">
+        <h3 class="font-bold text-2xl mb-6 gradient-text">Залишити відгук</h3>
+        <form method="post" action="{% url 'notifications:add_review' %}" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Оцінка</label>
+                <div class="rating rating-lg">
+                    <input type="radio" name="rating" value="5" class="mask mask-star-2 bg-cyber-purple" checked />
+                    <input type="radio" name="rating" value="4" class="mask mask-star-2 bg-cyber-purple" />
+                    <input type="radio" name="rating" value="3" class="mask mask-star-2 bg-cyber-purple" />
+                    <input type="radio" name="rating" value="2" class="mask mask-star-2 bg-cyber-purple" />
+                    <input type="radio" name="rating" value="1" class="mask mask-star-2 bg-cyber-purple" />
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Заголовок</label>
+                <input type="text" name="title" placeholder="Коротко про враження" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" required />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Відгук</label>
+                <textarea name="comment" placeholder="Ваш відгук..." class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30" required></textarea>
+            </div>
+            <div class="modal-action">
+                <form method="dialog">
+                    <button class="btn btn-ghost">Скасувати</button>
+                </form>
+                <button type="submit" class="btn-cyber">Відправити</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+{% endblock %}

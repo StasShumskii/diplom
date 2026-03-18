@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Мій профіль - AutoTech Pro{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Profile Header -->
+    <div class="glass-panel rounded-[32px] p-8">
+        <div class="flex flex-col md:flex-row items-center gap-8">
+            <div class="relative">
+                <div class="w-32 h-32 rounded-full bg-gradient-to-r from-cyber-purple to-cyber-cyan p-1">
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.username }}" class="w-full h-full rounded-full" />
+                </div>
+                <label class="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-cyber-purple flex items-center justify-center cursor-pointer hover:scale-110 transition">
+                    <i data-lucide="camera" class="w-5 h-5"></i>
+                    <input type="file" class="hidden" accept="image/*">
+                </label>
+            </div>
+            <div class="text-center md:text-left flex-1">
+                <h1 class="text-3xl font-bold text-white">{{ user.username }}</h1>
+                <p class="text-gray-400">{{ user.email }}</p>
+                <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-3">
+                    <span class="badge bg-cyber-purple/20 border-cyber-purple/30 text-cyber-purple px-3 py-2">
+                        <i data-lucide="user" class="w-3 h-3 mr-1"></i>
+                        {{ user.get_role_display|default:"Клієнт" }}
+                    </span>
+                    <span class="badge bg-cyber-cyan/20 border-cyber-cyan/30 text-cyber-cyan px-3 py-2">
+                        <i data-lucide="calendar" class="w-3 h-3 mr-1"></i>
+                        З {{ user.date_joined|date:"d.m.Y" }}
+                    </span>
+                </div>
+            </div>
+            <a href="{% url 'account_logout' %}" class="btn btn-outline border-red-500/30 text-red-400 hover:bg-red-500/20">
+                <i data-lucide="log-out" class="w-4 h-4 mr-2"></i>
+                Вийти
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="cyber-card p-5 rounded-xl text-center">
+            <div class="text-2xl font-bold gradient-text">{{ bookings.count }}</div>
+            <div class="text-sm text-gray-400">Візитів</div>
+        </div>
+        <div class="cyber-card p-5 rounded-xl text-center">
+            <div class="text-2xl font-bold gradient-text">{{ cars.count }}</div>
+            <div class="text-sm text-gray-400">Авто</div>
+        </div>
+        <div class="cyber-card p-5 rounded-xl text-center">
+            <div class="text-2xl font-bold gradient-text">{{ bonus_account.points|default:"0" }}</div>
+            <div class="text-sm text-gray-400">Балів</div>
+        </div>
+        <div class="cyber-card p-5 rounded-xl text-center">
+            <div class="text-2xl font-bold gradient-text">{{ bonus_account.level|default:"1" }}</div>
+            <div class="text-sm text-gray-400">Рівень</div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="glass-panel rounded-[32px] p-6">
+        <div class="flex flex-wrap gap-4 mb-6">
+            <button class="tab-btn btn-cyber px-6 py-2.5 rounded-xl" onclick="showTab('cars')">
+                <i data-lucide="car" class="w-4 h-4 mr-2"></i>Мої авто
+            </button>
+            <button class="tab-btn btn btn-outline border-cyber-purple/30 px-6 py-2.5 rounded-xl" onclick="showTab('bookings')">
+                <i data-lucide="calendar" class="w-4 h-4 mr-2"></i>Записи
+            </button>
+            <button class="tab-btn btn btn-outline border-cyber-purple/30 px-6 py-2.5 rounded-xl" onclick="showTab('bonus')">
+                <i data-lucide="gift" class="w-4 h-4 mr-2"></i>Бонуси
+            </button>
+            <button class="tab-btn btn btn-outline border-cyber-purple/30 px-6 py-2.5 rounded-xl" onclick="showTab('settings')">
+                <i data-lucide="settings" class="w-4 h-4 mr-2"></i>Налаштування
+            </button>
+        </div>
+
+        <!-- My Cars Tab -->
+        <div id="tab-cars" class="tab-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Мій гараж</h3>
+                <button class="btn-cyber px-4 py-2 rounded-xl" onclick="document.getElementById('add-car-modal').showModal()">
+                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i>Додати авто
+                </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for car in cars %}
+                <div class="cyber-card p-5 rounded-xl">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-xl bg-cyber-purple/20 flex items-center justify-center">
+                            <i data-lucide="car" class="w-7 h-7 text-cyber-purple"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-bold text-white">{{ car.model }}</div>
+                            <div class="text-sm text-gray-400">{{ car.license_plate }}</div>
+                            <div class="text-xs text-gray-500">{{ car.year }} • {{ car.mileage }} км</div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full text-center py-8 text-gray-500">
+                    <i data-lucide="car" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
+                    <p>У вас немає доданих автомобілів</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Bookings Tab -->
+        <div id="tab-bookings" class="tab-content hidden">
+            <div class="space-y-4">
+                {% for booking in bookings %}
+                <div class="cyber-card p-4 rounded-xl flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-cyber-cyan/20 flex items-center justify-center">
+                            <i data-lucide="calendar" class="w-6 h-6 text-cyber-cyan"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-white">{{ booking.car.model }}</div>
+                            <div class="text-sm text-gray-400">{{ booking.scheduled_at|date:"d.m.Y H:i" }}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="badge bg-cyber-purple/20 border-cyber-purple/30 text-cyber-purple">{{ booking.get_status_display }}</span>
+                        <div class="text-cyber-cyan font-bold mt-1">{{ booking.total_cost }} ₴</div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-8 text-gray-500">Записів не знайдено</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Bonus Tab -->
+        <div id="tab-bonus" class="tab-content hidden">
+            <div class="cyber-card p-6 rounded-xl mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <div class="text-gray-400 text-sm">Ваш баланс</div>
+                        <div class="text-4xl font-bold gradient-text">{{ bonus_account.points|default:"0" }}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-gray-400 text-sm">Рівень</div>
+                        <div class="text-4xl font-bold gradient-text">{{ bonus_account.level|default:"1" }}</div>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'dashboard:bonus' %}" class="btn-cyber w-full">Управління бонусами</a>
+        </div>
+
+        <!-- Settings Tab -->
+        <div id="tab-settings" class="tab-content hidden">
+            <form id="settings-form" class="space-y-6 max-w-lg">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Ім'я</label>
+                        <input type="text" name="first_name" value="{{ user.first_name }}" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30 h-11">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Прізвище</label>
+                        <input type="text" name="last_name" value="{{ user.last_name }}" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30 h-11">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Ім'я користувача</label>
+                    <input type="text" value="{{ user.username }}" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30 h-11" disabled>
+                    <p class="text-xs text-gray-500 mt-1">Ім'я користувача неможливо змінити</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" name="email" value="{{ user.email }}" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30 h-11">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Телефон</label>
+                    <input type="tel" name="phone" value="{{ user.phone|default:'' }}" placeholder="+38 (0__) ___-__-__" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30 h-11">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Дата реєстрації</label>
+                    <input type="text" value="{{ user.date_joined|date:'d.m.Y' }}" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30 h-11" disabled>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="btn-cyber px-8" id="save-settings-btn">
+                        <i data-lucide="save" class="w-4 h-4 mr-2"></i>Зберегти зміни
+                    </button>
+                    <div id="settings-message" class="flex items-center text-sm"></div>
+                </div>
+            </form>
+
+            <!-- Change Password -->
+            <div class="mt-8 pt-6 border-t border-cyber-purple/20">
+                <h4 class="font-bold text-white mb-4">Зміна пароля</h4>
+                <a href="{% url 'account_change_password' %}" class="btn btn-outline border-cyber-purple/30">
+                    <i data-lucide="key" class="w-4 h-4 mr-2"></i>Змінити пароль
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Car Modal -->
+<dialog id="add-car-modal" class="modal">
+    <div class="modal-box cyber-card max-w-lg">
+        <h3 class="font-bold text-2xl mb-6 text-white text-center">Додати автомобіль</h3>
+        <form method="post" action="{% url 'cars:add_car_ajax' %}" class="space-y-4" id="add-car-form-profile">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Марка</label>
+                <select name="brand" id="car-brand-select-profile" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30" hx-get="{% url 'cars:api_models' %}" hx-target="#car-model-profile" onchange="updateCarPreviewProfile()">
+                    <option value="">Оберіть марку</option>
+                    {% for brand in brands|default:"[]" %}
+                        <option value="{{ brand.id }}" data-name="{{ brand.name }}">{{ brand.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Модель</label>
+                <select name="model" id="car-model-profile" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30" onchange="updateCarPreviewProfile()">
+                    <option value="">Спочатку оберіть марку</option>
+                </select>
+            </div>
+            
+            <div id="car-preview-profile" class="hidden cyber-card p-4 rounded-xl bg-gradient-to-r from-cyber-purple/10 to-cyber-cyan/10">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-xl bg-gradient-to-r from-cyber-purple to-cyber-cyan flex items-center justify-center">
+                        <i data-lucide="car" class="w-8 h-8 text-white"></i>
+                    </div>
+                    <div>
+                        <div class="font-bold text-white text-lg" id="preview-car-name-profile">Volkswagen Golf</div>
+                        <div class="text-sm text-gray-400" id="preview-car-details-profile">2020 • АА 1234 АА</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Рік</label>
+                    <select name="year" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                        <option value="">Рік</option>
+                        {% for year in "20262025202420232022202120202019201820172016201520142013201220112010"|make_list %}
+                        {% with y=forloop.counter|add:2009 %}
+                        <option value="{{ y }}">{{ y }}</option>
+                        {% endwith %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Держ. номер</label>
+                    <input type="text" name="license_plate" placeholder="АА 1234 АА" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" oninput="this.value = this.value.toUpperCase()">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">VIN (необов'язково)</label>
+                <input type="text" name="vin" placeholder="XXXXXXXXXXXXXXXXX" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" maxlength="17">
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="checkbox" name="is_primary" id="is-primary-car-profile" class="checkbox checkbox-primary checkbox-sm">
+                <label for="is-primary-car-profile" class="text-sm text-gray-300">Зробити основним автомобілем</label>
+            </div>
+            <div class="modal-action justify-center">
+                <button type="button" class="btn btn-ghost" onclick="document.getElementById('add-car-modal').close()">Скасувати</button>
+                <button type="submit" class="btn-cyber">Додати</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<script>
+function updateCarPreviewProfile() {
+    const brandSelect = document.getElementById('car-brand-select-profile');
+    const modelSelect = document.getElementById('car-model-profile');
+    const preview = document.getElementById('car-preview-profile');
+    const previewName = document.getElementById('preview-car-name-profile');
+    
+    const brandName = brandSelect.options[brandSelect.selectedIndex]?.text || '';
+    const modelName = modelSelect.options[modelSelect.selectedIndex]?.text || '';
+    
+    if (brandName && modelName) {
+        preview.classList.remove('hidden');
+        previewName.textContent = brandName + ' ' + modelName;
+    } else {
+        preview.classList.add('hidden');
+    }
+}
+
+document.getElementById('add-car-form-profile')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
+    
+    fetch("{% url 'cars:add_car_ajax' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('add-car-modal').close();
+            location.reload();
+        } else {
+            alert(data.message || 'Помилка при додаванні автомобіля');
+        }
+    })
+    .catch(error => {
+        alert('Помилка: ' + error);
+    });
+});
+
+document.getElementById('settings-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
+    const btn = document.getElementById('save-settings-btn');
+    const msg = document.getElementById('settings-message');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 mr-2 animate-spin"></i>Збереження...';
+    lucide.createIcons();
+    
+    fetch("{% url 'dashboard:update_profile' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            msg.innerHTML = '<i data-lucide="check-circle" class="w-4 h-4 text-green-400 mr-2"></i><span class="text-green-400">Збережено!</span>';
+            if (data.avatar_url) {
+                document.querySelectorAll('.user-avatar').forEach(img => {
+                    img.src = data.avatar_url;
+                });
+            }
+        } else {
+            msg.innerHTML = '<i data-lucide="x-circle" class="w-4 h-4 text-red-400 mr-2"></i><span class="text-red-400">' + (data.message || 'Помилка') + '</span>';
+        }
+        lucide.createIcons();
+    })
+    .catch(error => {
+        msg.innerHTML = '<i data-lucide="x-circle" class="w-4 h-4 text-red-400 mr-2"></i><span class="text-red-400">Помилка: ' + error + '</span>';
+        lucide.createIcons();
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i>Зберегти зміни';
+        lucide.createIcons();
+        setTimeout(() => {
+            msg.innerHTML = '';
+        }, 3000);
+    });
+});
+
+function showTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('btn-cyber');
+        el.classList.add('btn', 'btn-outline', 'border-cyber-purple/30');
+    });
+    event.target.classList.add('btn-cyber');
+    event.target.classList.remove('btn', 'btn-outline', 'border-cyber-purple/30');
+    document.getElementById('tab-' + tabName).classList.remove('hidden');
+}
+</script>
+{% endblock %}

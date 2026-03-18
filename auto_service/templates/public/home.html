@@ -1,0 +1,404 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="space-y-20">
+    <!-- Hero Section -->
+    <section class="relative min-h-[80vh] flex items-center justify-center overflow-hidden rounded-[40px] mx-4">
+        <div class="absolute inset-0 bg-gradient-to-br from-cyber-purple/20 via-transparent to-cyber-cyan/20"></div>
+        
+        <!-- Animated Background Elements -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-cyber-purple/10 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-64 h-64 bg-cyber-cyan/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+            <div class="absolute top-1/2 right-1/3 w-48 h-48 bg-cyber-pink/10 rounded-full blur-3xl animate-pulse" style="animation-delay: 2s;"></div>
+        </div>
+        
+        <div class="relative z-10 text-center space-y-8 px-6 max-w-5xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-panel border-cyber-purple/20 text-cyber-purple text-xs font-semibold uppercase tracking-wider animate-fade-in">
+                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                Система нового покоління 2026 - ЛЬВІВ
+            </div>
+            
+            <h1 class="text-6xl md:text-8xl font-black leading-[0.9] text-white animate-slide-up">
+                АВТОСЕРВІС <br/>
+                <span class="gradient-text">МАЙБУТНЬОГО</span>
+            </h1>
+            
+            <p class="text-gray-300 text-lg md:text-xl max-w-3xl mx-auto font-medium leading-relaxed animate-slide-up" style="animation-delay: 0.2s;">
+                Інтелектуальна система запису клієнтів та попереднього розрахунку вартості технічного обслуговування автомобілів.
+                AI-діагностика, онлайн-калькулятор, бонусна програма.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-5 pt-4 animate-slide-up" style="animation-delay: 0.4s;">
+                <a href="{% url 'bookings:create' %}" class="btn-cyber btn-lg h-14 px-10 rounded-2xl text-base font-semibold flex items-center justify-center gap-2">
+                    <span>ЗАПИСАТИСЬ НА ТО</span>
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </a>
+                <a href="{% url 'calculator:index' %}" class="btn btn-outline border-cyber-purple/30 hover:bg-cyber-purple/20 hover:border-cyber-purple h-14 px-10 rounded-2xl font-semibold flex items-center justify-center gap-2">
+                    <i data-lucide="calculator" class="w-5 h-5"></i>
+                    <span>РОЗРАХУВАТИ ВАРТІСТЬ</span>
+                </a>
+            </div>
+
+            <!-- Quick Calculator in Hero -->
+            <div class="max-w-lg mx-auto mt-8 p-4 rounded-2xl glass-panel animate-slide-up" style="animation-delay: 0.6s;">
+                <p class="text-sm text-gray-400 mb-3">Швидкий розрахунок вартості ТО</p>
+                <div class="flex gap-2">
+                    <select id="quick-brand" class="select select-bordered flex-1 bg-cyber-surface border-cyber-purple/30 text-sm">
+                        <option value="">Марка авто</option>
+                        <option value="toyota">Toyota</option>
+                        <option value="bmw">BMW</option>
+                        <option value="mercedes">Mercedes</option>
+                        <option value="volkswagen">Volkswagen</option>
+                        <option value="audi">Audi</option>
+                    </select>
+                    <select id="quick-service" class="select select-bordered flex-1 bg-cyber-surface border-cyber-purple/30 text-sm">
+                        <option value="">Послуга</option>
+                        <option value="500">Заміна оливи</option>
+                        <option value="800">Діагностика</option>
+                        <option value="1200">ТО комплекс</option>
+                    </select>
+                    <button onclick="quickCalculate()" class="btn-cyber px-4">
+                        <i data-lucide="calculator" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div id="quick-result" class="mt-2 text-center text-cyber-cyan font-bold hidden">від 500 ₴</div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 pt-12">
+                <div class="text-center animate-fade-in" style="animation-delay: 0.3s;">
+                    <div class="text-4xl font-black gradient-text">15к+</div>
+                    <div class="text-gray-500 text-sm mt-1">Автівок обслуговано</div>
+                </div>
+                <div class="text-center animate-fade-in" style="animation-delay: 0.5s;">
+                    <div class="text-4xl font-black gradient-text">98%</div>
+                    <div class="text-gray-500 text-sm mt-1">Задоволених клієнтів</div>
+                </div>
+                <div class="text-center animate-fade-in" style="animation-delay: 0.7s;">
+                    <div class="text-4xl font-black gradient-text">24/7</div>
+                    <div class="text-gray-500 text-sm mt-1">Режим роботи</div>
+                </div>
+                <div class="text-center animate-fade-in" style="animation-delay: 0.9s;">
+                    <div class="text-4xl font-black gradient-text">5★</div>
+                    <div class="text-gray-500 text-sm mt-1">Рейтинг сервісу</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="space-y-10">
+        <div class="text-center space-y-2">
+            <div class="text-cyber-cyan font-semibold text-xs uppercase tracking-widest">Можливості</div>
+            <h2 class="text-4xl font-black text-white">ЧОМУ ОБИРАЮТЬ НАС</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="cyber-card p-8 rounded-[32px] group cursor-pointer hover:scale-105 transition-transform" onclick="window.location='{% url 'calculator:index' %}'">
+                <div class="w-14 h-14 rounded-2xl bg-cyber-purple/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="calculator" class="w-7 h-7 text-cyber-purple"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-cyber-purple transition-colors">КАЛЬКУЛЯТОР ТО</h3>
+                <p class="text-gray-400 leading-relaxed">
+                    Попередній розрахунок вартості технічного обслуговування за 3 кліки. Прозорі ціни без сюрпризів.
+                </p>
+                <div class="mt-4 text-cyber-purple text-sm font-medium flex items-center gap-2 group-hover:gap-3 transition-gap">
+                    Розрахувати <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+            </div>
+
+            <div class="cyber-card p-8 rounded-[32px] group cursor-pointer hover:scale-105 transition-transform" onclick="window.location='{% url 'bookings:create' %}'">
+                <div class="w-14 h-14 rounded-2xl bg-cyber-cyan/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="calendar" class="w-7 h-7 text-cyber-cyan"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-cyber-cyan transition-colors">ОНЛАЙН ЗАПИС</h3>
+                <p class="text-gray-400 leading-relaxed">
+                    Запишіться на ТО всього за 1 хвилину. Оберіть зручний час та отримайте підтвердження.
+                </p>
+                <div class="mt-4 text-cyber-cyan text-sm font-medium flex items-center gap-2 group-hover:gap-3 transition-gap">
+                    Записатись <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+            </div>
+
+            <div class="cyber-card p-8 rounded-[32px] group cursor-pointer hover:scale-105 transition-transform" onclick="window.location='{% url 'dashboard:bonus' %}'">
+                <div class="w-14 h-14 rounded-2xl bg-cyber-pink/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="gift" class="w-7 h-7 text-cyber-pink"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-cyber-pink transition-colors">БОНУСНА ПРОГРАМА</h3>
+                <p class="text-gray-400 leading-relaxed">
+                    Накопичуйте бали за кожне ТО та обмінюйте на знижки або безкоштовні послуги.
+                </p>
+                <div class="mt-4 text-cyber-pink text-sm font-medium flex items-center gap-2 group-hover:gap-3 transition-gap">
+                    Детальніше <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Banner -->
+    <section class="cyber-card rounded-[32px] p-8 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-cyber-purple/10 to-cyber-cyan/10"></div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-cyber-purple/20 rounded-full blur-3xl"></div>
+        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="text-center md:text-left">
+                <h3 class="text-2xl font-bold text-white mb-2">НЕ ГАЙТЕ ЧАСУ!</h3>
+                <p class="text-gray-400">Запишіться на ТО зараз та отримайте знижку 10%</p>
+                <div class="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    Акція до кінця місяця
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <a href="{% url 'bookings:create' %}" class="btn-cyber px-8 py-3 rounded-xl flex items-center gap-2">
+                    <span>ЗАПИСАТИСЬ</span>
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </a>
+                <a href="{% url 'calculator:index' %}" class="btn btn-outline border-cyber-purple/30 px-8 py-3 rounded-xl flex items-center gap-2">
+                    <i data-lucide="calculator" class="w-5 h-5"></i>
+                    <span>РОЗРАХУВАТИ</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Preview -->
+    <section class="space-y-10">
+        <div class="flex justify-between items-end flex-wrap gap-4 px-4">
+            <div class="space-y-2">
+                <div class="text-cyber-pink font-semibold text-xs uppercase tracking-widest">Каталог</div>
+                <h2 class="text-4xl font-black text-white">НАШІ ПОСЛУГИ</h2>
+            </div>
+            <a href="{% url 'services:list' %}" class="btn btn-outline border-cyber-purple/30 hover:bg-cyber-purple/20 rounded-xl">
+                ВСІ ПОСЛУГИ
+                <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+            <div class="cyber-card p-6 rounded-2xl hover:scale-105 transition-transform cursor-pointer" onclick="window.location='{% url 'services:list' %}'">
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-12 h-12 rounded-xl bg-cyber-purple/20 flex items-center justify-center">
+                        <i data-lucide="oil" class="w-6 h-6 text-cyber-purple"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Заміна оливи</h3>
+                </div>
+                <p class="text-gray-400 text-sm mb-3">Повна заміна моторного мастила та фільтрів.</p>
+                <div class="text-xl font-bold gradient-text">від 800 ₴</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-2xl hover:scale-105 transition-transform cursor-pointer" onclick="window.location='{% url 'services:list' %}'">
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-12 h-12 rounded-xl bg-cyber-cyan/20 flex items-center justify-center">
+                        <i data-lucide="disc" class="w-6 h-6 text-cyber-cyan"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Діагностика</h3>
+                </div>
+                <p class="text-gray-400 text-sm mb-3">Комп'ютерна діагностика всіх систем автомобіля.</p>
+                <div class="text-xl font-bold gradient-text">від 500 ₴</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-2xl hover:scale-105 transition-transform cursor-pointer" onclick="window.location='{% url 'services:list' %}'">
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-12 h-12 rounded-xl bg-cyber-pink/20 flex items-center justify-center">
+                        <i data-lucide="circle" class="w-6 h-6 text-cyber-pink"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Гальмівна система</h3>
+                </div>
+                <p class="text-gray-400 text-sm mb-3">Заміна колодок, дисків, ревізія супортів.</p>
+                <div class="text-xl font-bold gradient-text">від 1200 ₴</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-2xl hover:scale-105 transition-transform cursor-pointer" onclick="window.location='{% url 'services:list' %}'">
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-12 h-12 rounded-xl bg-cyber-purple/20 flex items-center justify-center">
+                        <i data-lucide="wind" class="w-6 h-6 text-cyber-purple"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Кондиціонер</h3>
+                </div>
+                <p class="text-gray-400 text-sm mb-3">Заправка, дезінфекція, ремонт клімат-контролю.</p>
+                <div class="text-xl font-bold gradient-text">від 600 ₴</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-2xl hover:scale-105 transition-transform cursor-pointer" onclick="window.location='{% url 'services:list' %}'">
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-12 h-12 rounded-xl bg-cyber-cyan/20 flex items-center justify-center">
+                        <i data-lucide="battery" class="w-6 h-6 text-cyber-cyan"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Електрика</h3>
+                </div>
+                <p class="text-gray-400 text-sm mb-3">Діагностика та ремонт електросистем.</p>
+                <div class="text-xl font-bold gradient-text">від 400 ₴</div>
+            </div>
+
+            <div class="cyber-card p-6 rounded-2xl hover:scale-105 transition-transform cursor-pointer" onclick="window.location='{% url 'services:list' %}'">
+                <div class="flex items-center gap-4 mb-3">
+                    <div class="w-12 h-12 rounded-xl bg-cyber-pink/20 flex items-center justify-center">
+                        <i data-lucide="sparkles" class="w-6 h-6 text-cyber-pink"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Полірування</h3>
+                </div>
+                <p class="text-gray-400 text-sm mb-3">Керамічне покриття, полірування кузова.</p>
+                <div class="text-xl font-bold gradient-text">від 2500 ₴</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section class="space-y-10">
+        <div class="text-center space-y-2">
+            <div class="text-cyber-purple font-semibold text-xs uppercase tracking-widest">Відгуки</div>
+            <h2 class="text-4xl font-black text-white">ЩО КАЖУТЬ КЛІЄНТИ</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4">
+            <div class="cyber-card p-8 rounded-[32px] space-y-4 hover:scale-105 transition-transform">
+                <div class="flex gap-1">
+                    {% for i in "12345" %}<i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>{% endfor %}
+                </div>
+                <p class="text-gray-300">"Чудовий сервіс! Записався через сайт, все швидко та зручно. Ціни спочатку порахували, нічого зайвого не нарахували."</p>
+                <div class="flex items-center gap-3 pt-2">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-cyber-purple to-cyber-cyan flex items-center justify-center font-bold text-white">О</div>
+                    <div>
+                        <div class="font-semibold text-white">Олександр К.</div>
+                        <div class="text-xs text-gray-500">BMW X5</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cyber-card p-8 rounded-[32px] space-y-4 hover:scale-105 transition-transform">
+                <div class="flex gap-1">
+                    {% for i in "12345" %}<i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>{% endfor %}
+                </div>
+                <p class="text-gray-300">"Вперше бачив таку систему - все онлайн, зручно, прозоро. Ще й бонуси нарахували за запис. Рекомендую!"</p>
+                <div class="flex items-center gap-3 pt-2">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-cyber-cyan to-cyber-pink flex items-center justify-center font-bold text-white">М</div>
+                    <div>
+                        <div class="font-semibold text-white">Марія П.</div>
+                        <div class="text-xs text-gray-500">Toyota Camry</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cyber-card p-8 rounded-[32px] space-y-4 hover:scale-105 transition-transform">
+                <div class="flex gap-1">
+                    {% for i in "12345" %}<i data-lucide="star" class="w-5 h-5 text-yellow-400 fill-yellow-400"></i>{% endfor %}
+                </div>
+                <p class="text-gray-300">"AI діагностика реально працює! Показали проблему, яку інші сервіси не знайшли. Тепер тільки сюди."</p>
+                <div class="flex items-center gap-3 pt-2">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-cyber-pink to-cyber-purple flex items-center justify-center font-bold text-white">В</div>
+                    <div>
+                        <div class="font-semibold text-white">Віталій С.</div>
+                        <div class="text-xs text-gray-500">Mercedes E-Class</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center">
+            <a href="{% url 'notifications:reviews' %}" class="btn btn-outline border-cyber-purple/30 px-8 py-3 rounded-xl">
+                ВСІ ВІДГУКИ <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="space-y-10">
+        <div class="text-center space-y-2">
+            <div class="text-cyber-pink font-semibold text-xs uppercase tracking-widest">Переваги</div>
+            <h2 class="text-4xl font-black text-white">ЧОМУ МИ КРАЩІ</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
+            <div class="cyber-card p-6 rounded-2xl text-center">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-cyber-purple to-cyber-cyan flex items-center justify-center mb-4">
+                    <i data-lucide="clock" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Швидкість</h3>
+                <p class="text-gray-400 text-sm">Більшість послуг виконуємо за 30-60 хвилин</p>
+            </div>
+
+            <div class="cyber-card p-6 rounded-2xl text-center">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-cyber-cyan to-cyber-pink flex items-center justify-center mb-4">
+                    <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Гарантія</h3>
+                <p class="text-gray-400 text-sm">На всі послуги та запчастини</p>
+            </div>
+
+            <div class="cyber-card p-6 rounded-2xl text-center">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-cyber-pink to-cyber-purple flex items-center justify-center mb-4">
+                    <i data-lucide="users" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Досвід</h3>
+                <p class="text-gray-400 text-sm">Команда професіоналів з 15-річним досвідом</p>
+            </div>
+
+            <div class="cyber-card p-6 rounded-2xl text-center">
+                <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-r from-green-500 to-cyber-cyan flex items-center justify-center mb-4">
+                    <i data-lucide="map-pin" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Локація</h3>
+                <p class="text-gray-400 text-sm">Зручне розташування у Львові</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cyber-card rounded-[48px] p-12 mx-4 relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-cyber-purple/20 to-cyber-cyan/20"></div>
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyber-purple via-cyber-cyan to-cyber-pink"></div>
+        <div class="relative z-10 text-center space-y-6">
+            <h2 class="text-4xl font-black text-white">ГОТОВИ ЗАПИСАТИСЬ?</h2>
+            <p class="text-gray-400 max-w-xl mx-auto">
+                Приєднуйтесь до тисяч задоволених клієнтів. 
+                Запишіться на ТО онлайн вже зараз та отримайте 10% знижку на перше обслуговування!
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+                <a href="{% url 'bookings:create' %}" class="btn-cyber btn-lg h-14 px-10 rounded-2xl">
+                    ЗАПИСАТИСЬ ЗАРАЗ
+                </a>
+                <a href="{% url 'calculator:index' %}" class="btn btn-outline border-cyber-purple/30 hover:bg-cyber-purple/20 h-14 px-10 rounded-2xl font-semibold">
+                    РОЗРАХУВАТИ ВАРТІСТЬ
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+.animate-slide-up {
+    animation: slideUp 0.8s ease-out forwards;
+}
+</style>
+
+<script>
+function quickCalculate() {
+    const brand = document.getElementById('quick-brand').value;
+    const service = document.getElementById('quick-service').value;
+    const result = document.getElementById('quick-result');
+    
+    if (!brand || !service) {
+        alert('Оберіть марку авто та послугу!');
+        return;
+    }
+    
+    const minPrice = parseInt(service) * 0.8;
+    const maxPrice = parseInt(service) * 1.2;
+    result.textContent = 'від ' + Math.round(minPrice) + ' - ' + Math.round(maxPrice) + ' ₴';
+    result.classList.remove('hidden');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Послуги - AutoTech Pro{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header with Search -->
+    <div class="glass-panel rounded-[32px] p-8">
+        <h1 class="text-4xl font-black text-white mb-2">КАТАЛОГ ПОСЛУГ</h1>
+        <p class="text-gray-400 mb-6">Оберіть послугу для вашого автомобіля</p>
+        
+        <!-- Search Form -->
+        <form method="get" class="space-y-4">
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1 relative">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500"></i>
+                    <input type="text" 
+                           name="search" 
+                           value="{{ search_query|default:'' }}"
+                           placeholder="Пошук послуг за назвою..." 
+                           class="input input-bordered w-full pl-12 bg-cyber-surface border-cyber-purple/30 focus:border-cyber-purple h-12"
+                    />
+                </div>
+                <select name="category" class="select select-bordered bg-cyber-surface border-cyber-purple/30 h-12 min-w-[200px]">
+                    <option value="">Всі категорії</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if category_id == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-cyber h-12 px-8 rounded-xl">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                    <span class="ml-2">Пошук</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Categories -->
+    <div class="flex flex-wrap gap-3">
+        <a href="{% url 'services:list' %}" class="btn {% if not category_id %}btn-cyber{% else %}btn-outline border-cyber-purple/30{% endif %} rounded-xl">
+            Всі
+        </a>
+        {% for cat in categories %}
+        <a href="{% url 'services:list' %}?category={{ cat.id }}" class="btn {% if category_id == cat.id|stringformat:"s" %}btn-cyber{% else %}btn-outline border-cyber-purple/30{% endif %} rounded-xl">
+            {{ cat.name }}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Results Info -->
+    <div class="text-gray-400">
+        Знайдено послуг: <span class="text-cyber-purple font-semibold">{{ services|length }}</span>
+    </div>
+
+    <!-- Services Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for service in services %}
+        <div class="cyber-card p-6 rounded-2xl flex flex-col justify-between h-full">
+            <div class="space-y-4">
+                <div class="flex justify-between items-start">
+                    <div class="w-12 h-12 rounded-xl bg-cyber-purple/20 flex items-center justify-center">
+                        <i data-lucide="{{ service.category.icon|default:'wrench' }}" class="w-6 h-6 text-cyber-purple"></i>
+                    </div>
+                    <span class="badge bg-cyber-surface border-cyber-purple/30 text-gray-300">{{ service.category.name }}</span>
+                </div>
+                
+                <h3 class="text-xl font-bold text-white">{{ service.name }}</h3>
+                <p class="text-gray-400 text-sm">
+                    {{ service.description|default:"Професійне обслуговування вашого автомобіля." }}
+                </p>
+                
+                {% if service.estimated_time %}
+                <div class="flex items-center gap-2 text-gray-500 text-sm">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span>≈ {{ service.estimated_time }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="pt-4 flex justify-between items-end border-t border-cyber-purple/20 mt-4">
+                <div>
+                    <div class="text-xs text-gray-500">Базова ціна</div>
+                    <div class="text-2xl font-bold gradient-text">{{ service.base_price|floatformat:0 }} ₴</div>
+                </div>
+                <a href="{% url 'bookings:create' %}?service={{ service.id }}" class="btn-cyber rounded-xl">
+                    Записатись
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full glass-panel rounded-[32px] p-12 text-center">
+            <i data-lucide="search-x" class="w-16 h-16 mx-auto text-gray-600 mb-4"></i>
+            <p class="text-gray-500 text-lg">Послуг не знайдено</p>
+            <a href="{% url 'services:list' %}" class="btn-cyber mt-4 inline-block">Скинути фільтри</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,416 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="uk" data-theme="dark" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AutoTech Pro 2026 - Система запису та розрахунку вартості ТО{% endblock %}</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.min.css" rel="stylesheet" type="text/css" />
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            dark: '#0a0a0f',
+                            purple: '#8b5cf6',
+                            purpleLight: '#a78bfa',
+                            cyan: '#06b6d4',
+                            cyanLight: '#22d3ee',
+                            pink: '#ec4899',
+                            surface: '#12121a',
+                        }
+                    },
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        space: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --cyber-purple: #8b5cf6;
+            --cyber-cyan: #06b6d4;
+            --cyber-pink: #ec4899;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
+            min-height: 100vh;
+            color: #e2e8f0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .glass-panel {
+            background: rgba(18, 18, 26, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .cyber-card {
+            background: linear-gradient(145deg, rgba(139, 92, 246, 0.08) 0%, rgba(6, 182, 212, 0.08) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            transition: all 0.3s ease;
+        }
+        .cyber-card:hover {
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .btn-cyber {
+            background: linear-gradient(135deg, var(--cyber-purple) 0%, var(--cyber-cyan) 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+        .btn-cyber:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #8b5cf6 0%, #06b6d4 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-glass {
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+        }
+
+        .footer-dark {
+            background: linear-gradient(180deg, #0a0a0f 0%, #12121a 100%);
+            border-top: 1px solid rgba(139, 92, 246, 0.15);
+        }
+
+        .glow-purple { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+        .glow-cyan { box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
+        .glow-pink { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        
+        .btn-cyber, .btn, .btn-outline {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            line-height: 1.2 !important;
+            vertical-align: middle !important;
+        }
+        
+        .btn-cyber span, .btn span, a.btn span, a.btn-cyber span {
+            display: inline-block;
+            text-align: center;
+            line-height: 1.2 !important;
+            vertical-align: middle !important;
+        }
+        
+        .btn-cyber, .btn {
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+        
+        .btn-lg {
+            padding-top: 0.75rem !important;
+            padding-bottom: 0.75rem !important;
+        }
+
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scroll-animate-delay-1 { transition-delay: 0.1s; }
+        .scroll-animate-delay-2 { transition-delay: 0.2s; }
+        .scroll-animate-delay-3 { transition-delay: 0.3s; }
+        .scroll-animate-delay-4 { transition-delay: 0.4s; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-screen font-outfit">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 nav-glass">
+        <div class="max-w-[1920px] mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <a href="/" class="flex items-center gap-3 group">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-r from-cyber-purple to-cyber-cyan flex items-center justify-center glow-purple">
+                        <i data-lucide="wrench" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="text-xl font-bold tracking-tight text-white">AUTO<span class="gradient-text">TECH</span></span>
+                </a>
+
+                <div class="hidden lg:flex items-center gap-7 font-medium text-sm text-gray-300">
+                    <a href="{% url 'dashboard:home' %}" class="hover:text-white transition-colors flex items-center gap-2">
+                        <i data-lucide="home" class="w-4 h-4"></i>Головна
+                    </a>
+                    <a href="{% url 'services:list' %}" class="hover:text-cyber-purple transition-colors flex items-center gap-2">
+                        <i data-lucide="list" class="w-4 h-4"></i>Послуги
+                    </a>
+                    <a href="{% url 'calculator:index' %}" class="hover:text-cyber-cyan transition-colors flex items-center gap-2">
+                        <i data-lucide="calculator" class="w-4 h-4"></i>Калькулятор
+                    </a>
+                    <a href="{% url 'notifications:reviews' %}" class="hover:text-yellow-400 transition-colors flex items-center gap-2">
+                        <i data-lucide="star" class="w-4 h-4"></i>Відгуки
+                    </a>
+                    <a href="{% url 'dashboard:contacts' %}" class="hover:text-cyber-pink transition-colors flex items-center gap-2">
+                        <i data-lucide="map-pin" class="w-4 h-4"></i>Контакти
+                    </a>
+                    <a href="{% url 'dashboard:index' %}" class="hover:text-white transition-colors flex items-center gap-2">
+                        <i data-lucide="user" class="w-4 h-4"></i>Кабінет
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    {% if user.is_authenticated %}
+                        <div class="dropdown dropdown-end">
+                            <label tabindex="0" class="btn btn-ghost btn-circle avatar border border-cyber-purple/30">
+                                <div class="w-10 rounded-full">
+                                    <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}https://api.dicebear.com/7.x/bottts/svg?seed={{ user.username }}{% endif %}" />
+                                </div>
+                            </label>
+                            <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content glass-panel rounded-xl w-52 border border-cyber-purple/30">
+                                <li><a href="{% url 'dashboard:profile' %}" class="font-semibold"><i data-lucide="user" class="w-4 h-4"></i> Профіль</a></li>
+                                <li><a href="{% url 'bookings:create' %}" class="font-semibold"><i data-lucide="calendar" class="w-4 h-4"></i> Записатись</a></li>
+                                <li><a href="{% url 'account_logout' %}" class="text-red-400 font-semibold"><i data-lucide="log-out" class="w-4 h-4"></i> Вихід</a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'account_login' %}" class="btn btn-ghost text-sm font-semibold">ВХІД</a>
+                        <a href="{% url 'account_signup' %}" class="btn-cyber rounded-xl px-6 py-2.5">РЕЄСТРАЦІЯ</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow px-4 py-8">
+        <div class="max-w-[1920px] mx-auto">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-dark px-6 py-16 mt-auto">
+        <div class="max-w-[1920px] mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+                <!-- Brand -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-cyber-purple to-cyber-cyan flex items-center justify-center glow-purple">
+                            <i data-lucide="wrench" class="text-white w-5 h-5"></i>
+                        </div>
+                        <span class="text-xl font-bold text-white">AutoTech Pro 2026</span>
+                    </div>
+                    <p class="text-gray-400 text-sm max-w-md leading-relaxed">
+                        Інноваційна система запису клієнтів та попереднього розрахунку вартості технічного обслуговування автомобілів.
+                        AI-діагностика, онлайн-калькулятор, бонусна програма та багато іншого.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://instagram.com/autotechpro" target="_blank" class="w-10 h-10 rounded-lg bg-cyber-purple/20 flex items-center justify-center hover:bg-cyber-purple/40 transition">
+                            <i data-lucide="instagram" class="w-5 h-5"></i>
+                        </a>
+                        <a href="https://facebook.com/autotechpro" target="_blank" class="w-10 h-10 rounded-lg bg-cyber-cyan/20 flex items-center justify-center hover:bg-cyber-cyan/40 transition">
+                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                        </a>
+                        <a href="https://youtube.com/@autotechpro" target="_blank" class="w-10 h-10 rounded-lg bg-cyber-pink/20 flex items-center justify-center hover:bg-cyber-pink/40 transition">
+                            <i data-lucide="youtube" class="w-5 h-5"></i>
+                        </a>
+                        <a href="https://tiktok.com/@autotechpro" target="_blank" class="w-10 h-10 rounded-lg bg-cyber-purple/20 flex items-center justify-center hover:bg-cyber-purple/40 transition">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Services -->
+                <div class="space-y-4">
+                    <div class="font-semibold text-white mb-4">Послуги</div>
+                    <a href="#" class="block text-gray-400 hover:text-cyber-purple transition">Заміна оливи</a>
+                    <a href="#" class="block text-gray-400 hover:text-cyber-purple transition">Діагностика</a>
+                    <a href="#" class="block text-gray-400 hover:text-cyber-purple transition">Гальмівна система</a>
+                    <a href="#" class="block text-gray-400 hover:text-cyber-purple transition">Кондиціонер</a>
+                    <a href="#" class="block text-gray-400 hover:text-cyber-purple transition">Полірування</a>
+                </div>
+
+                <!-- Links -->
+                <div class="space-y-4">
+                    <div class="font-semibold text-white mb-4">Навігація</div>
+                    <a href="{% url 'dashboard:home' %}" class="block text-gray-400 hover:text-cyber-cyan transition">Головна</a>
+                    <a href="{% url 'services:list' %}" class="block text-gray-400 hover:text-cyber-cyan transition">Каталог послуг</a>
+                    <a href="{% url 'calculator:index' %}" class="block text-gray-400 hover:text-cyber-cyan transition">Калькулятор</a>
+                    <a href="{% url 'bookings:create' %}" class="block text-gray-400 hover:text-cyber-cyan transition">Записатись</a>
+                    <a href="{% url 'dashboard:index' %}" class="block text-gray-400 hover:text-cyber-cyan transition">Кабінет</a>
+                </div>
+
+                <!-- Contacts -->
+                <div class="space-y-4">
+                    <div class="font-semibold text-white mb-4">Контакти</div>
+                    <div class="flex items-center gap-3 text-gray-400">
+                        <i data-lucide="map-pin" class="w-4 h-4 text-cyber-purple"></i>
+                        <span>м. Львів, вул. Городоцька 302</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-400">
+                        <i data-lucide="phone" class="w-4 h-4 text-cyber-cyan"></i>
+                        <span>+38 (032) 240-20-26</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-400">
+                        <i data-lucide="mail" class="w-4 h-4 text-cyber-pink"></i>
+                        <span>info@lviv.autotech.com.ua</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-400">
+                        <i data-lucide="clock" class="w-4 h-4 text-cyber-purple"></i>
+                        <span>Працюємо 24/7</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-cyber-purple/20 mt-12 pt-8 text-center text-gray-500 text-sm">
+                © 2026 AutoTech Pro. Всі права захищені. Система запису клієнтів та попереднього розрахунку вартості ТО.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Contacts Modal -->
+    <dialog id="contacts-modal" class="modal">
+        <div class="modal-box cyber-card max-w-2xl">
+            <h3 class="font-bold text-2xl mb-6 text-white text-center">НАШІ КОНТАКТИ</h3>
+            
+            <div class="space-y-6">
+                <!-- Location -->
+                <div class="cyber-card p-6 rounded-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-cyber-purple/20 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="map-pin" class="w-6 h-6 text-cyber-purple"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">Адреса</h4>
+                            <p class="text-gray-300">м. Львів, вул. Городоцька 302</p>
+                            <p class="text-gray-500 text-sm mt-1">Черговка на в'їзді</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phone -->
+                <div class="cyber-card p-6 rounded-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-cyber-cyan/20 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="phone" class="w-6 h-6 text-cyber-cyan"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">Телефон</h4>
+                            <p class="text-gray-300">+38 (032) 240-20-26</p>
+                            <p class="text-gray-500 text-sm mt-1">Безкоштовно по Україні</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="cyber-card p-6 rounded-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-cyber-pink/20 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="mail" class="w-6 h-6 text-cyber-pink"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">Email</h4>
+                            <p class="text-gray-300">info@lviv.autotech.com.ua</p>
+                            <p class="text-gray-500 text-sm mt-1">Відповідаємо протягом 15 хвилин</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work Hours -->
+                <div class="cyber-card p-6 rounded-xl">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="clock" class="w-6 h-6 text-green-500"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-1">Графік роботи</h4>
+                            <p class="text-gray-300">Цілодобово 24/7</p>
+                            <p class="text-gray-500 text-sm mt-1">Без вихідних та свят</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social -->
+                <div class="flex justify-center gap-4 pt-4">
+                    <a href="#" class="w-12 h-12 rounded-xl bg-cyber-purple/20 flex items-center justify-center hover:bg-cyber-purple/40 transition">
+                        <i data-lucide="instagram" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="w-12 h-12 rounded-xl bg-cyber-cyan/20 flex items-center justify-center hover:bg-cyber-cyan/40 transition">
+                        <i data-lucide="facebook" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="w-12 h-12 rounded-xl bg-cyber-pink/20 flex items-center justify-center hover:bg-cyber-pink/40 transition">
+                        <i data-lucide="youtube" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="w-12 h-12 rounded-xl bg-cyber-purple/20 flex items-center justify-center hover:bg-cyber-purple/40 transition">
+                        <i data-lucide="telegram" class="w-5 h-5"></i>
+                    </a>
+                </div>
+
+                <!-- Map placeholder -->
+                <div class="cyber-card p-2 rounded-xl">
+                    <div class="bg-cyber-dark rounded-lg h-40 flex items-center justify-center">
+                        <div class="text-center">
+                            <i data-lucide="map" class="w-10 h-10 mx-auto mb-2 text-gray-600"></i>
+                            <p class="text-gray-500 text-sm">Мапа</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-action justify-center">
+                <form method="dialog">
+                    <button class="btn-cyber px-8">ЗАКРИТИ</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
+    <script>
+        lucide.createIcons();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.scroll-animate').forEach(el => {
+                observer.observe(el);
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

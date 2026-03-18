@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice #{{ booking.id }}</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px; }
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #0A2540; padding-bottom: 20px; margin-bottom: 40px; }
+        .logo { font-size: 24px; font-weight: 900; color: #0A2540; }
+        .logo span { color: #FF6B00; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 40px; }
+        .section-title { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #999; margin-bottom: 10px; letter-spacing: 1px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+        th { text-align: left; padding: 15px; border-bottom: 1px solid #eee; font-size: 12px; text-transform: uppercase; color: #666; }
+        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
+        .total-row { font-size: 24px; font-weight: 900; text-align: right; margin-top: 20px; }
+        .footer { font-size: 10px; color: #999; text-align: center; margin-top: 100px; border-top: 1px solid #eee; padding-top: 20px; }
+        @media print {
+            .no-print { display: none; }
+            body { padding: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="no-print" style="background: #0A2540; color: white; padding: 15px; text-align: center; position: sticky; top: 0;">
+        Цей документ оптимізовано для друку. 
+        <button onclick="window.print()" style="background: #FF6B00; border: none; color: white; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-left: 20px;">
+            ДРУКУВАТИ / ЗБЕРЕГТИ ЯК PDF
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">AUTOPRO <span>2026</span></div>
+            <div style="text-align: right;">
+                <div style="font-weight: 900;">Замовлення #{{ booking.id }}</div>
+                <div style="font-size: 12px; color: #666;">Дата: {{ booking.scheduled_at|date:"d.m.Y" }}</div>
+            </div>
+        </div>
+
+        <div class="info-grid">
+            <div>
+                <div class="section-title">ЗАМОВНИК</div>
+                <div style="font-weight: bold;">{{ booking.client.username }}</div>
+                <div>{{ booking.client.phone|default:"Телефон не вказано" }}</div>
+            </div>
+            <div>
+                <div class="section-title">АВТОМОБІЛЬ</div>
+                <div style="font-weight: bold;">{{ booking.car.model }}</div>
+                <div>{{ booking.car.license_plate }}</div>
+                <div style="font-size: 12px; color: #666;">Пробіг: {{ booking.car.mileage }} км</div>
+            </div>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Послуга / Робота</th>
+                    <th style="text-align: right;">Ціна (грн)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in booking.items.all %}
+                <tr>
+                    <td>{{ item.service.name }}</td>
+                    <td style="text-align: right;">{{ item.price_at_booking|floatformat:2 }} ₴</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total-row">
+            <span style="font-size: 14px; font-weight: normal; color: #666; margin-right: 20px;">РАЗОМ ДО ОПЛАТИ:</span>
+            {{ booking.total_cost|floatformat:2 }} ₴
+        </div>
+
+        <div style="margin-top: 60px;">
+            <div class="section-title">ПРИМІТКИ</div>
+            <p style="font-size: 12px; color: #666;">{{ booking.notes|default:"Додаткових приміток немає." }}</p>
+        </div>
+
+        <div class="footer">
+            AutoService Pro 2026 — Дякуємо за довіру! <br>
+            м. Київ, вул. Шовковична 12 | +38 (044) 2026-000 | autopro2026.ua
+        </div>
+    </div>
+</body>
+</html>

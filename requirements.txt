@@ -1,0 +1,16 @@
+Django>=5.1
+djangorestframework
+django-allauth
+channels[daphne]
+daphne
+psycopg2-binary
+mysqlclient
+weasyprint
+django-crispy-forms
+crispy-tailwind
+django-htmx
+whitenoise
+python-dotenv
+django-extensions
+django-debug-toolbar
+pillow

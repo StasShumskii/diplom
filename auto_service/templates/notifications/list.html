@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Сповіщення - AutoPro 2026{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-12">
+    <div class="text-center space-y-4">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel border-white/10 text-brand-solar text-[10px] font-black uppercase tracking-[0.4em]">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            Neural Alert System
+        </div>
+        <h1 class="text-6xl font-black orbitron tracking-tighter uppercase gradient-text">СПОВІЩЕННЯ</h1>
+    </div>
+
+    <div class="glass-panel rounded-[40px] border-white/5 overflow-hidden">
+        {% for notification in notifications %}
+        <div class="p-8 border-b border-white/5 last:border-none flex items-start gap-8 hover:bg-white/5 transition-all">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 {% if notification.is_read %}bg-slate-800 text-slate-500{% else %}bg-brand-solar/20 text-brand-solar{% endif %}">
+                <i data-lucide="{% if notification.is_read %}mail-open{% else %}mail{% endif %}" class="w-6 h-6"></i>
+            </div>
+            <div class="space-y-2 flex-grow">
+                <div class="flex justify-between items-start">
+                    <h3 class="text-xl font-black orbitron uppercase">{{ notification.title }}</h3>
+                    <span class="text-[10px] font-black text-slate-600 uppercase">{{ notification.created_at|timesince }} тому</span>
+                </div>
+                <p class="text-slate-400 font-medium leading-relaxed">{{ notification.message }}</p>
+            </div>
+        </div>
+        {% empty %}
+        <div class="py-24 text-center">
+            <i data-lucide="bell-off" class="w-16 h-16 mx-auto text-slate-800 mb-6"></i>
+            <h3 class="orbitron text-xl font-black text-slate-700">НЕМАЄ СПОВІЩЕНЬ</h3>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

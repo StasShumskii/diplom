@@ -1,0 +1,739 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Відгуки - AutoTech Pro{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <div class="glass-panel rounded-[32px] p-8 text-center">
+        <h1 class="text-4xl font-bold text-white mb-2">ВІДГУКИ КЛІЄНТІВ</h1>
+        <p class="text-gray-400">Дізнайтесь, що думають наші клієнти про сервіс</p>
+    </div>
+
+    <!-- Rating Summary -->
+    <div class="cyber-card rounded-[32px] p-8">
+        <div class="flex flex-col md:flex-row items-center justify-center gap-12">
+            <div class="text-center">
+                <div class="text-6xl font-bold gradient-text">4.9</div>
+                <div class="flex gap-1 justify-center my-2">
+                    {% for i in "12345" %}<i data-lucide="star" class="w-6 h-6 text-yellow-400 fill-yellow-400"></i>{% endfor %}
+                </div>
+                <div class="text-gray-400">Середня оцінка</div>
+                <div class="text-sm text-cyber-purple mt-2">15 234 відгуки</div>
+            </div>
+            <div class="flex-1 max-w-md space-y-2">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-gray-400 w-12">5★</span>
+                    <div class="flex-1 h-3 bg-cyber-purple/20 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-cyber-purple to-cyber-cyan w-[95%]"></div>
+                    </div>
+                    <span class="text-sm text-gray-400 w-8">95%</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-gray-400 w-12">4★</span>
+                    <div class="flex-1 h-3 bg-cyber-purple/20 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-cyber-purple to-cyber-cyan w-[4%]"></div>
+                    </div>
+                    <span class="text-sm text-gray-400 w-8">4%</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-gray-400 w-12">3★</span>
+                    <div class="flex-1 h-3 bg-cyber-purple/20 rounded-full overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-cyber-purple to-cyber-cyan w-[1%]"></div>
+                    </div>
+                    <span class="text-sm text-gray-400 w-8">1%</span>
+                </div>
+            </div>
+            {% if user.is_authenticated %}
+            <button onclick="document.getElementById('add-review-modal').showModal()" class="btn-cyber px-6 py-3 rounded-xl">
+                <i data-lucide="plus" class="w-4 h-4 mr-2"></i>НАПИСАТИ ВІДГУК
+            </button>
+            {% else %}
+            <a href="{% url 'account_login' %}" class="btn-cyber px-6 py-3 rounded-xl">
+                <i data-lucide="log-in" class="w-4 h-4 mr-2"></i>УВІЙТИ ЩОБ ОЦІНИТИ
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filter -->
+    <div class="flex flex-wrap gap-3">
+        <button class="btn btn-sm btn-cyber filter-btn" data-filter="all">Всі</button>
+        <button class="btn btn-sm btn-outline border-cyber-purple/30 filter-btn" data-filter="5">5★</button>
+        <button class="btn btn-sm btn-outline border-cyber-purple/30 filter-btn" data-filter="4">4★</button>
+        <button class="btn btn-sm btn-outline border-cyber-purple/30 filter-btn" data-filter="3">3★</button>
+    </div>
+
+    <!-- Reviews List -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="reviews-grid">
+        <!-- Review 1 -->
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">12.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Чудовий сервіс!</h3>
+            <p class="text-gray-400 text-sm">Записався через сайт, все швидко та зручно. Ціни спочатку порахували, нічого зайвого не нарахували. Рекомендую!</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-cyber-purple to-cyber-cyan flex items-center justify-center font-bold text-xs text-white">ОК</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Олександр К.</div>
+                    <div class="text-xs text-gray-500">BMW X5</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+            <div class="reply-display hidden mt-3 p-3 bg-cyber-purple/10 rounded-lg">
+                <div class="text-xs text-cyber-cyan font-semibold">Відповідь AutoTech Pro:</div>
+                <p class="text-sm text-gray-300 mt-1">Дякуємо за відгук! Раді, що все сподобалось. Чекаємо Вас знову!</p>
+            </div>
+        </div>
+
+        <!-- Review 2 -->
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">11.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Відмінна система!</h3>
+            <p class="text-gray-400 text-sm">Вперше бачив таку систему - все онлайн, зручно, прозоро. Ще й бонуси нарахували за запис. Рекомендую!</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-cyber-cyan to-cyber-pink flex items-center justify-center font-bold text-xs text-white">МП</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Марія П.</div>
+                    <div class="text-xs text-gray-500">Toyota Camry</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review 3 -->
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">10.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">AI діагностика - речі!</h3>
+            <p class="text-gray-400 text-sm">AI діагностика реально працює! Показали проблему, яку інші сервіси не знайшли. Тепер тільки сюди.</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-cyber-pink to-cyber-purple flex items-center justify-center font-bold text-xs text-white">ВС</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Віталій С.</div>
+                    <div class="text-xs text-gray-500">Mercedes E-Class</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review 4 -->
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">09.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Швидко та якісно!</h3>
+            <p class="text-gray-400 text-sm">Заміну оливи зробили за 30 хвилин, ціна відповідає. Машинка після ТО як нова! Дякую!</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-cyber-cyan flex items-center justify-center font-bold text-xs text-white">ІТ</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Ігор Т.</div>
+                    <div class="text-xs text-gray-500">Honda Accord</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review 5 -->
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item" data-rating="4">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-gray-600"></i>
+                </div>
+                <span class="text-xs text-gray-500">08.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Все сподобалось</h3>
+            <p class="text-gray-400 text-sm">Чудовий сервіс, привітний персонал. Єдине - чекав трохи довше ніж очікувалось. Але роботу зробили якісно.</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 flex items-center justify-center font-bold text-xs text-white">АМ</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Андрій М.</div>
+                    <div class="text-xs text-gray-500">Volkswagen Golf</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review 6 -->
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">07.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Найкращий сервіс у Львові!</h3>
+            <p class="text-gray-400 text-sm">Обслуговуюсь тут вже 3 роки. Ніколи не підводять. Калькулятор то - просто геніальна річ!</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center font-bold text-xs text-white">ДШ</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Дмитро Ш.</div>
+                    <div class="text-xs text-gray-500">Audi A6</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional reviews (hidden initially) -->
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item hidden" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">06.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Професійний підхід</h3>
+            <p class="text-gray-400 text-sm">Все на вищому рівні. Діагностика, ремонт, обслуговування - все чітко і вчасно.</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center font-bold text-xs text-white">СП</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Сергій П.</div>
+                    <div class="text-xs text-gray-500">Ford Focus</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item hidden" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">05.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Рекомендую!</h3>
+            <p class="text-gray-400 text-sm">Відмінний сервіс! Ціни прозорі, ніяких сюрпризів. Персонал дуже ввічливий.</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-orange-500 flex items-center justify-center font-bold text-xs text-white">НТ</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Наталія Т.</div>
+                    <div class="text-xs text-gray-500">Hyundai Sonata</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item hidden" data-rating="4">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-gray-600"></i>
+                </div>
+                <span class="text-xs text-gray-500">04.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Хороший сервіс</h3>
+            <p class="text-gray-400 text-sm">Все сподобалось, але довго чекав на результат діагностики. В іншому - все добре.</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-teal-500 to-green-500 flex items-center justify-center font-bold text-xs text-white">ОВ</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Олег В.</div>
+                    <div class="text-xs text-gray-500">Kia Sportage</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item hidden" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">03.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Все чудово!</h3>
+            <p class="text-gray-400 text-sm">Швидко, якісно, недорого. Вже третій раз тут обслуговуюсь. Рекомендую!</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center font-bold text-xs text-white">ЮК</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Юрій К.</div>
+                    <div class="text-xs text-gray-500">Renault Megane</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item hidden" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">02.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Сучасний сервіс</h3>
+            <p class="text-gray-400 text-sm">Вражає сучасний підхід до справи. Онлайн запис, калькулятор, все працює!</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-xs text-white">ЛП</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Леся П.</div>
+                    <div class="text-xs text-gray-500">Nissan Leaf</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item hidden" data-rating="3">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-gray-600"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-gray-600"></i>
+                </div>
+                <span class="text-xs text-gray-500">01.03.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Нормально</h3>
+            <p class="text-gray-400 text-sm">Звичайний сервіс, нічого особливого. Ціни середні, якість теж.</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-amber-500 flex items-center justify-center font-bold text-xs text-white">МС</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Михайло С.</div>
+                    <div class="text-xs text-gray-500">Skoda Octavia</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item hidden" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">28.02.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Відмінно!</h3>
+            <p class="text-gray-400 text-sm">Дуже задоволений! Все зробили швидко і якісно. Ціна відповідає.</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 flex items-center justify-center font-bold text-xs text-white">АГ</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Антон Г.</div>
+                    <div class="text-xs text-gray-500">Mazda CX-5</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item hidden" data-rating="4">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-gray-600"></i>
+                </div>
+                <span class="text-xs text-gray-500">27.02.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Добре</h3>
+            <p class="text-gray-400 text-sm">Все сподобалось, але хотілось би більше знижок постійним клієнтам.</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-violet-500 to-pink-500 flex items-center justify-center font-bold text-xs text-white">ТШ</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Тарас Ш.</div>
+                    <div class="text-xs text-gray-500">Peugeot 3008</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item hidden" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">26.02.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Чудова робота</h3>
+            <p class="text-gray-400 text-sm">Замінювали гальмівні колодки, все чітко. Механік все пояснив, показав.</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-lime-500 to-green-500 flex items-center justify-center font-bold text-xs text-white">РВ</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Роман В.</div>
+                    <div class="text-xs text-gray-500">Volkswagen Passat</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item hidden" data-rating="5">
+            <div class="flex justify-between items-start">
+                <div class="flex gap-1">
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                    <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                </div>
+                <span class="text-xs text-gray-500">25.02.2026</span>
+            </div>
+            <h3 class="font-bold text-white">Супер!</h3>
+            <p class="text-gray-400 text-sm">Все на відмінно! Рекомендую всім. Особенно калькулятор - річ!</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center font-bold text-xs text-white">ЗО</div>
+                <div>
+                    <div class="font-semibold text-white text-sm">Захар О.</div>
+                    <div class="text-xs text-gray-500">Citroen C4</div>
+                </div>
+            </div>
+            <button class="text-cyber-purple text-xs hover:underline" onclick="showReplyForm(this)">Відповісти</button>
+            <div class="reply-form hidden mt-3">
+                <textarea class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 text-sm h-20" placeholder="Ваша відповідь..."></textarea>
+                <div class="flex gap-2 mt-2">
+                    <button class="btn btn-xs btn-ghost" onclick="hideReplyForm(this)">Скасувати</button>
+                    <button class="btn btn-xs btn-cyber" onclick="submitReply(this)">Відправити</button>
+                </div>
+            </div>
+        </div>
+
+        {% for review in reviews %}
+        <div class="cyber-card p-6 rounded-[24px] space-y-4 review-item" data-rating="{{ review.rating }}">
+            <div class="flex gap-1">
+                {% for i in "12345" %}
+                    <i data-lucide="star" class="w-4 h-4 {% if forloop.counter <= review.rating %}text-yellow-400 fill-yellow-400{% else %}text-gray-600{% endif %}"></i>
+                {% endfor %}
+            </div>
+            <h3 class="font-bold text-white">{{ review.title }}</h3>
+            <p class="text-gray-400 text-sm">{{ review.comment }}</p>
+            <div class="flex items-center gap-3 pt-2 border-t border-cyber-purple/10">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-cyber-purple to-cyber-cyan flex items-center justify-center font-bold text-xs text-white">
+                    {{ review.user.username|make_list|first|upper }}
+                </div>
+                <div>
+                    <div class="font-semibold text-white text-sm">{{ review.user.username }}</div>
+                    <div class="text-xs text-gray-500">{{ review.created_at|date:"d.m.Y" }}</div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Load More -->
+    <div class="text-center">
+        <button class="btn btn-outline border-cyber-purple/30 px-8 py-3 rounded-xl" id="load-more-btn" onclick="loadMoreReviews()">
+            <i data-lucide="loader" class="w-4 h-4 mr-2"></i>ЗАВАНТАЖИТИ ЩЕ
+        </button>
+    </div>
+</div>
+
+<!-- Add Review Modal -->
+<dialog id="add-review-modal" class="modal">
+    <div class="modal-box cyber-card max-w-lg">
+        <h3 class="font-bold text-2xl mb-6 text-white text-center">НАПИСАТИ ВІДГУК</h3>
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Оцінка</label>
+                <div class="flex gap-2" id="star-rating">
+                    {% for i in "12345" %}
+                    <button type="button" class="star-btn w-10 h-10 rounded-lg bg-cyber-surface border border-cyber-purple/30 hover:bg-cyber-purple/20 flex items-center justify-center" data-star="{{ forloop.counter }}">
+                        <span class="text-lg font-bold text-gray-500">{{ forloop.counter }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="rating" id="rating-input" value="5">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Заголовок</label>
+                <input type="text" name="title" placeholder="Короткий заголовок" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Відгук</label>
+                <textarea name="comment" placeholder="Ваш відгук..." class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 h-32" required></textarea>
+            </div>
+            <div class="modal-action justify-center">
+                <form method="dialog">
+                    <button class="btn btn-ghost">Скасувати</button>
+                </form>
+                <button type="submit" class="btn-cyber">НАДІСЛАТИ</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<script>
+function updateStars(rating) {
+    document.querySelectorAll('.star-btn').forEach((btn, index) => {
+        const span = btn.querySelector('span');
+        if (index < rating) {
+            span.classList.add('text-yellow-400');
+            span.classList.remove('text-gray-500');
+            btn.classList.add('bg-cyber-purple/20', 'border-cyber-purple');
+            btn.classList.remove('bg-cyber-surface', 'border-cyber-purple/30');
+        } else {
+            span.classList.remove('text-yellow-400');
+            span.classList.add('text-gray-500');
+            btn.classList.remove('bg-cyber-purple/20', 'border-cyber-purple');
+            btn.classList.add('bg-cyber-surface', 'border-cyber-purple/30');
+        }
+    });
+}
+
+document.querySelectorAll('.star-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const rating = parseInt(this.dataset.star);
+        document.getElementById('rating-input').value = rating;
+        updateStars(rating);
+    });
+});
+
+updateStars(5);
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.remove('btn-cyber');
+            b.classList.add('btn-outline', 'border-cyber-purple/30');
+        });
+        this.classList.add('btn-cyber');
+        this.classList.remove('btn-outline', 'border-cyber-purple/30');
+        
+        const filter = this.dataset.filter;
+        document.querySelectorAll('.review-item').forEach(item => {
+            if (filter === 'all' || item.dataset.rating === filter) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+});
+
+function showReplyForm(btn) {
+    const card = btn.closest('.cyber-card');
+    card.querySelector('.reply-form').classList.remove('hidden');
+    btn.classList.add('hidden');
+}
+
+function hideReplyForm(btn) {
+    const card = btn.closest('.cyber-card');
+    card.querySelector('.reply-form').classList.add('hidden');
+    card.querySelector('button').classList.remove('hidden');
+    card.querySelector('.reply-form textarea').value = '';
+}
+
+function submitReply(btn) {
+    const card = btn.closest('.cyber-card');
+    const textarea = card.querySelector('.reply-form textarea');
+    const replyText = textarea.value.trim();
+    
+    if (!replyText) {
+        alert('Введіть текст відповіді');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.textContent = 'Відправка...';
+    
+    setTimeout(() => {
+        card.querySelector('.reply-form').classList.add('hidden');
+        card.querySelector('.reply-display').classList.remove('hidden');
+        card.querySelector('.reply-display p').textContent = replyText;
+        lucide.createIcons();
+    }, 500);
+}
+
+let reviewsLoaded = 6;
+const totalReviews = 16;
+
+function loadMoreReviews() {
+    const btn = document.getElementById('load-more-btn');
+    btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 mr-2 animate-spin"></i>ЗАВАНТАЖЕННЯ...';
+    lucide.createIcons();
+    
+    setTimeout(() => {
+        const hiddenReviews = document.querySelectorAll('.review-item.hidden');
+        let count = 0;
+        hiddenReviews.forEach((review, index) => {
+            if (count < 10 && index < hiddenReviews.length) {
+                review.classList.remove('hidden');
+                count++;
+            }
+        });
+        
+        reviewsLoaded += count;
+        
+        if (reviewsLoaded >= totalReviews) {
+            btn.innerHTML = '<i data-lucide="check" class="w-4 h-4 mr-2"></i>ВСІ ВІДГУКИ ЗАВАНТАЖЕНО';
+            btn.disabled = true;
+            btn.classList.remove('btn-outline', 'border-cyber-purple/30');
+            btn.classList.add('btn-ghost');
+        } else {
+            btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 mr-2"></i>ЗАВАНТАЖИТИ ЩЕ';
+        }
+        lucide.createIcons();
+    }, 1000);
+}
+</script>
+{% endblock %}

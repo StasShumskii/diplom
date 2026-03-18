@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Бонусна програма - AutoTech Pro{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <div class="glass-panel rounded-[32px] p-8">
+        <h1 class="text-3xl font-bold text-white">БОНУСНА ПРОГРАМА</h1>
+        <p class="text-gray-400 mt-2">Накопичуйте бали за кожне ТО та обмінюйте на знижки!</p>
+    </div>
+
+    <!-- Bonus Card -->
+    <div class="cyber-card rounded-[32px] p-8">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div class="text-center md:text-left">
+                <div class="text-gray-400 text-sm">Ваш бонусний рахунок</div>
+                <div class="text-6xl font-bold gradient-text">{{ bonus_account.points }}</div>
+                <div class="text-gray-400">балів</div>
+            </div>
+            <div class="text-center">
+                <div class="cyber-card inline-block px-8 py-4 rounded-xl">
+                    <div class="text-sm text-gray-400">Рівень</div>
+                    <div class="text-4xl font-bold gradient-text">{{ bonus_account.level }}</div>
+                </div>
+            </div>
+            <div class="text-center md:text-right space-y-2">
+                <div class="text-gray-400">
+                    Всього зароблено: <span class="text-cyber-purple font-bold">{{ bonus_account.total_earned }}</span>
+                </div>
+                <div class="text-gray-400">
+                    Всього витрачено: <span class="text-cyber-pink font-bold">{{ bonus_account.total_spent }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How to earn -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="cyber-card p-6 rounded-xl text-center">
+            <div class="w-12 h-12 rounded-xl bg-cyber-purple/20 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="calendar-check" class="w-6 h-6 text-cyber-purple"></i>
+            </div>
+            <h3 class="font-bold text-white mb-2">Запис на ТО</h3>
+            <p class="text-gray-400 text-sm">1 бал за кожні 10 грн чеку</p>
+        </div>
+        <div class="cyber-card p-6 rounded-xl text-center">
+            <div class="w-12 h-12 rounded-xl bg-cyber-cyan/20 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="star" class="w-6 h-6 text-cyber-cyan"></i>
+            </div>
+            <h3 class="font-bold text-white mb-2">Відгук</h3>
+            <p class="text-gray-400 text-sm">50 балів за відгук</p>
+        </div>
+        <div class="cyber-card p-6 rounded-xl text-center">
+            <div class="w-12 h-12 rounded-xl bg-cyber-pink/20 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="users" class="w-6 h-6 text-cyber-pink"></i>
+            </div>
+            <h3 class="font-bold text-white mb-2">Реферал</h3>
+            <p class="text-gray-400 text-sm">200 балів за друга</p>
+        </div>
+    </div>
+
+    <!-- Spend -->
+    <div class="cyber-card rounded-xl p-6">
+        <h3 class="text-xl font-bold text-white mb-4">Витратити бали</h3>
+        <form method="post" action="{% url 'dashboard:spend_bonus' %}" class="flex gap-4 items-end">
+            {% csrf_token %}
+            <div class="flex-1">
+                <input type="number" name="amount" min="100" max="{{ bonus_account.points }}" placeholder="100" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" required />
+            </div>
+            <button type="submit" class="btn-cyber h-12">Витратити</button>
+        </form>
+        <p class="text-sm text-gray-500 mt-3">* 100 балів = 10% знижка на наступне ТО</p>
+    </div>
+
+    <!-- Transactions -->
+    <div>
+        <h3 class="text-xl font-bold text-white mb-4">Історія транзакцій</h3>
+        <div class="cyber-card overflow-hidden rounded-xl">
+            <table class="table w-full">
+                <thead class="bg-cyber-dark">
+                    <tr class="text-gray-400">
+                        <th class="bg-transparent">Дата</th>
+                        <th class="bg-transparent">Тип</th>
+                        <th class="bg-transparent">Бали</th>
+                        <th class="bg-transparent">Опис</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr class="border-t border-cyber-purple/10">
+                        <td class="text-gray-300">{{ transaction.created_at|date:"d.m.Y H:i" }}</td>
+                        <td>
+                            {% if transaction.transaction_type == 'EARN' %}
+                            <span class="badge bg-green-500/20 text-green-400">+</span>
+                            {% else %}
+                            <span class="badge bg-red-500/20 text-red-400">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="font-bold {% if transaction.transaction_type == 'EARN' %}text-green-400{% else %}text-red-400{% endif %}">
+                            {{ transaction.points }}
+                        </td>
+                        <td class="text-gray-400">{{ transaction.description|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="py-8 text-center text-gray-500">Транзакцій немає</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

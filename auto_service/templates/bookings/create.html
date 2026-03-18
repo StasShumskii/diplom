@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Записатись - AutoTech Pro{% endblock %}
+
+{% block extra_head %}
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<style>
+    .fc { font-family: 'Outfit', sans-serif; }
+    .fc .fc-toolbar-title { font-weight: 700; }
+    .fc .fc-button-primary { background-color: #8b5cf6 !important; border-color: #8b5cf6 !important; }
+    .fc .fc-button-primary:hover { background-color: #7c3aed !important; border-color: #7c3aed !important; }
+    .fc-theme-standard td, .fc-theme-standard th { border: 1px solid rgba(139, 92, 246, 0.2); }
+    .fc-daygrid-day:hover { background: rgba(139, 92, 246, 0.1); cursor: pointer; }
+    .fc-day-today { background: rgba(139, 92, 246, 0.15) !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="glass-panel rounded-[32px] p-6">
+        <h1 class="text-3xl font-bold text-white">ЗАПИС НА ТО</h1>
+        <p class="text-gray-400 mt-2">Оберіть зручний час та послуги для вашого автомобіля</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Calendar -->
+        <div class="lg:col-span-2">
+            <div class="cyber-card p-6 rounded-[32px]">
+                <div id="calendar" class="h-[450px]"></div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div>
+            <div class="cyber-card p-6 rounded-[32px] space-y-5 sticky top-24">
+                <h3 class="text-xl font-bold text-white text-center">ФОРМА ЗАПИСУ</h3>
+                
+                <form method="post" class="space-y-5">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Ваше авто</label>
+                        <select name="car" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                            {% for car in cars %}
+                                <option value="{{ car.id }}">{{ car.model }} ({{ car.license_plate }})</option>
+                            {% empty %}
+                                <option value="">Спочатку додайте авто</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Дата/час</label>
+                        <input type="text" id="id_scheduled_at" name="scheduled_at" readonly
+                               class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30 text-cyber-purple font-semibold"
+                               placeholder="Оберіть у календарі">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-3">Послуги</label>
+                        <div class="space-y-2 max-h-48 overflow-y-auto pr-2 bg-cyber-surface p-3 rounded-xl border border-cyber-purple/20">
+                            {% for service in services %}
+                            <label class="flex items-center gap-3 p-2 rounded-lg border border-cyber-purple/10 bg-cyber-dark cursor-pointer hover:bg-cyber-purple/10">
+                                <input type="checkbox" name="selected_services" value="{{ service.id }}" 
+                                       {% if selected_service and selected_service.id == service.id %}checked{% endif %}
+                                       class="checkbox checkbox-primary checkbox-sm" />
+                                <span class="text-sm text-white">{{ service.name }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Примечания</label>
+                        <textarea name="notes" class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30 h-20" placeholder="Додаткові побажання..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-cyber w-full h-12 rounded-xl font-semibold">
+                        ПІДТВЕРДИТИ ЗАПИС
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'uk',
+            firstDay: 1,
+            selectable: true,
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek'
+            },
+            select: function(info) {
+                let dateStr = info.startStr.replace('T', ' ');
+                if (dateStr.length === 10) dateStr += ' 10:00:00';
+                document.getElementById('id_scheduled_at').value = dateStr;
+            }
+        });
+        calendar.render();
+    });
+</script>
+{% endblock %}

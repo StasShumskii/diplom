@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoService Pro - Професійний автосервіс</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .page { display: none; opacity: 0; transition: opacity 0.3s ease-in-out; }
+        .page.active { display: block; opacity: 1; }
+        .parallax { background-attachment: fixed; background-position: center; background-repeat: no-repeat; background-size: cover; }
+        .gradient-hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .gradient-multi { background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #fda085 100%); }
+        .loading-spinner { 
+            width: 40px; height: 40px; 
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeInUp { 
+            from { opacity: 0; transform: translateY(30px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out; }
+        .animate-pulse { animation: pulse 2s infinite; }
+        .hover-lift { transition: all 0.3s ease; }
+        .hover-lift:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-backdrop { backdrop-filter: blur(5px); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .accordion-content.open { max-height: 500px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .dropdown-menu { display: none; position: absolute; }
+        .dropdown-menu.open { display: block; }
+        .confetti { position: fixed; width: 10px; height: 10px; background: linear-gradient(45deg, #f093fb, #f5576c); animation: confetti-fall 3s linear; }
+        @keyframes confetti-fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+        .progress-bar { transition: width 0.3s ease; }
+        .tooltip { position: relative; }
+        .tooltip-text { visibility: hidden; opacity: 0; transition: opacity 0.3s; }
+        .tooltip:hover .tooltip-text { visibility: visible; opacity: 1; }
+        .scroll-reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s ease; }
+        .scroll-reveal.revealed { opacity: 1; transform: translateY(0); }
+        .zoom-in { animation: zoomIn 0.3s ease; }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body class="bg-slate-950 text-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-slate-900/95 backdrop-blur-sm z-50 border-b border-slate-800">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <a href="#home" class="text-2xl font-bold bg-gradient-to-r from-indigo-500 to-purple-600 bg-clip-text text-transparent">AutoService Pro</a>
+                    <div class="hidden md:flex space-x-6">
+                        <a href="#home" class="nav-link hover:text-indigo-400 transition">Головна</a>
+                        <a href="#services" class="nav-link hover:text-indigo-400 transition">Послуги</a>
+                        <a href="#about" class="nav-link hover:text-indigo-400 transition">Про нас</a>
+                        <a href="#vacancies" class="nav-link hover:text-indigo-400 transition">Вакансії</a>
+                        <a href="#contacts" class="nav-link hover:text-indigo-400 transition">Контакти</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="loginBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition">Увійти</button>
+                    <button id="userMenuBtn" class="hidden px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition">Кабінет</button>
+                    <div class="relative dropdown">
+                        <button id="userDropdownBtn" class="hidden px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg transition">
+                            <span id="userName">Користувач</span> ▼
+                        </button>
+                        <div id="userDropdown" class="dropdown-menu right-0 mt-2 w-48 bg-slate-800 rounded-lg shadow-xl">
+                            <a href="#dashboard" class="block px-4 py-2 hover:bg-slate-700">Кабінет</a>
+                            <a href="#my-cars" class="block px-4 py-2 hover:bg-slate-700">Мої авто</a>
+                            <a href="#my-appointments" class="block px-4 py-2 hover:bg-slate-700">Мої записи</a>
+                            <a href="#admin" class="block px-4 py-2 hover:bg-slate-700" data-role="admin">Адмін панель</a>
+                            <button id="logoutBtn" class="block w-full text-left px-4 py-2 hover:bg-slate-700 text-red-400">Вийти</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-16">
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <!-- Hero Section with Parallax -->
+            <section class="parallax gradient-hero min-h-screen flex items-center justify-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-black/20"></div>
+                <div class="container mx-auto px-4 text-center relative z-10">
+                    <h1 class="text-6xl md:text-7xl font-bold mb-6 animate-fade-in-up">AutoService Pro</h1>
+                    <p class="text-xl md:text-2xl mb-8 max-w-3xl mx-auto animate-fade-in-up" style="animation-delay: 0.2s">
+                        Ваш надійний партнер у світі автомобільного сервісу. Пропонуємо повний спектр послуг з діагностики, ремонту та обслуговування вашого транспорту найвищого рівня.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up" style="animation-delay: 0.4s">
+                        <button onclick="navigateTo('#services')" class="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-lg font-semibold hover-lift">
+                            Переглянути послуги
+                        </button>
+                        <button onclick="showAddCarModal()" class="px-8 py-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-lg font-semibold hover-lift">
+                            Додати авто
+                        </button>
+                    </div>
+                </div>
+                <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                </div>
+            </section>
+
+            <!-- Statistics Section -->
+            <section class="py-20 bg-slate-900">
+                <div class="container mx-auto px-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <div class="text-center scroll-reveal">
+                            <div class="text-4xl font-bold text-indigo-400 mb-2">15+</div>
+                            <div class="text-gray-400">Років досвіду</div>
+                        </div>
+                        <div class="text-center scroll-reveal">
+                            <div class="text-4xl font-bold text-purple-400 mb-2">10,000+</div>
+                            <div class="text-gray-400">Задоволених клієнтів</div>
+                        </div>
+                        <div class="text-center scroll-reveal">
+                            <div class="text-4xl font-bold text-emerald-400 mb-2">50+</div>
+                            <div class="text-gray-400">Кваліфікованих майстрів</div>
+                        </div>
+                        <div class="text-center scroll-reveal">
+                            <div class="text-4xl font-bold text-rose-400 mb-2">24/7</div>
+                            <div class="text-gray-400">Підтримка</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Advantages Section -->
+            <section class="py-20 bg-slate-950">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-4xl font-bold text-center mb-12">Наші переваги</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="bg-slate-900 p-6 rounded-lg hover-lift scroll-reveal">
+                            <div class="text-3xl mb-4">🔧</div>
+                            <h3 class="text-xl font-semibold mb-2">Сучасне обладнання</h3>
+                            <p class="text-gray-400">Використовуємо найновіше діагностичне обладнання для точного виявлення проблем</p>
+                        </div>
+                        <div class="bg-slate-900 p-6 rounded-lg hover-lift scroll-reveal">
+                            <div class="text-3xl mb-4">👨‍🔧</div>
+                            <h3 class="text-xl font-semibold mb-2">Професійні майстри</h3>
+                            <p class="text-gray-400">Наша команда має сертифікати та багаторічний досвід роботи з різними марками авто</p>
+                        </div>
+                        <div class="bg-slate-900 p-6 rounded-lg hover-lift scroll-reveal">
+                            <div class="text-3xl mb-4">⚡</div>
+                            <h3 class="text-xl font-semibold mb-2">Швидкий сервіс</h3>
+                            <p class="text-gray-400">Мінімальний час очікування та оперативне виконання замовлень</p>
+                        </div>
+                        <div class="bg-slate-900 p-6 rounded-lg hover-lift scroll-reveal">
+                            <div class="text-3xl mb-4">💎</div>
+                            <h3 class="text-xl font-semibold mb-2">Гарантія якості</h3>
+                            <p class="text-gray-400">Надаємо гарантію на всі виконані роботи та встановлені запчастини</p>
+                        </div>
+                        <div class="bg-slate-900 p-6 rounded-lg hover-lift scroll-reveal">
+                            <div class="text-3xl mb-4">🚗</div>
+                            <h3 class="text-xl font-semibold mb-2">Всі марки авто</h3>
+                            <p class="text-gray-400">Працюємо з автомобілями будь-яких марок та моделей</p>
+                        </div>
+                        <div class="bg-slate-900 p-6 rounded-lg hover-lift scroll-reveal">
+                            <div class="text-3xl mb-4">💰</div>
+                            <h3 class="text-xl font-semibold mb-2">Чесні ціни</h3>
+                            <p class="text-gray-400">Прозоре ціноутворення без прихованих платежів</p>
+                        </div>
+                        <div class="bg-slate-900 p-6 rounded-lg hover-lift scroll-reveal">
+                            <div class="text-3xl mb-4">📱</div>
+                            <h3 class="text-xl font-semibold mb-2">Онлайн запис</h3>
+                            <p class="text-gray-400">Зручний онлайн запис на будь-який час через наш сайт</p>
+                        </div>
+                        <div class="bg-slate-900 p-6 rounded-lg hover-lift scroll-reveal">
+                            <div class="text-3xl mb-4">🏆</div>
+                            <h3 class="text-xl font-semibold mb-2">Нагороди</h3>
+                            <p class="text-gray-400">Множество нагород та визнання в автомобільній галузі</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reviews Section -->
+            <section class="py-20 bg-slate-900">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-4xl font-bold text-center mb-12">Відгуки клієнтів</h2>
+                    <div class="relative">
+                        <div id="reviewsSlider" class="overflow-hidden">
+                            <div class="flex transition-transform duration-500" id="reviewsContainer">
+                                <!-- Reviews will be added dynamically -->
+                            </div>
+                        </div>
+                        <button onclick="prevReview()" class="absolute left-0 top-1/2 transform -translate-y-1/2 bg-indigo-600 p-2 rounded-full">←</button>
+                        <button onclick="nextReview()" class="absolute right-0 top-1/2 transform -translate-y-1/2 bg-indigo-600 p-2 rounded-full">→</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="py-20 bg-slate-950">
+                <div class="container mx-auto px-4 max-w-4xl">
+                    <h2 class="text-4xl font-bold text-center mb-12">Часті запитання</h2>
+                    <div id="faqAccordion">
+                        <!-- FAQ items will be added dynamically -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Services Page -->
+        <div id="services" class="page">
+            <section class="py-20 bg-slate-950">
+                <div class="container mx-auto px-4">
+                    <h1 class="text-5xl font-bold text-center mb-12">Наші послуги</h1>
+                    
+                    <!-- Service Categories Tabs -->
+                    <div class="flex flex-wrap justify-center gap-4 mb-12">
+                        <button class="tab-btn px-6 py-3 bg-indigo-600 rounded-lg" data-tab="diagnostics">Діагностика</button>
+                        <button class="tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="engine">Двигун</button>
+                        <button class="tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="transmission">Трансмісія</button>
+                        <button class="tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="brakes">Гальма</button>
+                        <button class="tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="suspension">Підвіска</button>
+                        <button class="tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="electrical">Електрика</button>
+                        <button class="tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="climate">Клімат</button>
+                        <button class="tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="body">Кузов</button>
+                        <button class="tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="tires">Шини</button>
+                        <button class="tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="maintenance">ТО</button>
+                    </div>
+
+                    <!-- Service Content -->
+                    <div id="serviceContent">
+                        <!-- Content will be loaded dynamically -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- About Page -->
+        <div id="about" class="page">
+            <section class="py-20 bg-slate-950">
+                <div class="container mx-auto px-4">
+                    <h1 class="text-5xl font-bold text-center mb-12">Про нас</h1>
+                    
+                    <!-- Timeline -->
+                    <div class="mb-20">
+                        <h2 class="text-3xl font-bold text-center mb-8">Наша історія</h2>
+                        <div id="timeline" class="relative">
+                            <!-- Timeline will be added dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Team -->
+                    <div class="mb-20">
+                        <h2 class="text-3xl font-bold text-center mb-8">Наша команда</h2>
+                        <div id="teamGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <!-- Team members will be added dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Certificates -->
+                    <div class="mb-20">
+                        <h2 class="text-3xl font-bold text-center mb-8">Сертифікати та ліцензії</h2>
+                        <div id="certificates" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- Certificates will be added dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Gallery -->
+                    <div>
+                        <h2 class="text-3xl font-bold text-center mb-8">Наша робота</h2>
+                        <div id="gallery" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            <!-- Gallery images will be added dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Vacancies Page -->
+        <div id="vacancies" class="page">
+            <section class="py-20 bg-slate-950">
+                <div class="container mx-auto px-4">
+                    <h1 class="text-5xl font-bold text-center mb-12">Вакансії</h1>
+                    <div id="vacanciesList" class="space-y-6">
+                        <!-- Vacancies will be added dynamically -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Contacts Page -->
+        <div id="contacts" class="page">
+            <section class="py-20 bg-slate-950">
+                <div class="container mx-auto px-4">
+                    <h1 class="text-5xl font-bold text-center mb-12">Контакти</h1>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        <!-- Contact Form -->
+                        <div>
+                            <h2 class="text-2xl font-bold mb-6">Зв'яжіться з нами</h2>
+                            <form id="contactForm" class="space-y-4">
+                                <input type="text" placeholder="Ім'я" class="w-full px-4 py-3 bg-slate-800 rounded-lg" required>
+                                <input type="email" placeholder="Email" class="w-full px-4 py-3 bg-slate-800 rounded-lg" required>
+                                <input type="tel" placeholder="Телефон" class="w-full px-4 py-3 bg-slate-800 rounded-lg" required>
+                                <input type="text" placeholder="Марка авто" class="w-full px-4 py-3 bg-slate-800 rounded-lg">
+                                <input type="text" placeholder="Модель авто" class="w-full px-4 py-3 bg-slate-800 rounded-lg">
+                                <input type="number" placeholder="Рік випуску" class="w-full px-4 py-3 bg-slate-800 rounded-lg">
+                                <select class="w-full px-4 py-3 bg-slate-800 rounded-lg">
+                                    <option>Оберіть послугу</option>
+                                    <option>Діагностика</option>
+                                    <option>Ремонт двигуна</option>
+                                    <option>ТО</option>
+                                </select>
+                                <input type="date" class="w-full px-4 py-3 bg-slate-800 rounded-lg">
+                                <textarea placeholder="Повідомлення" rows="4" class="w-full px-4 py-3 bg-slate-800 rounded-lg"></textarea>
+                                <button type="submit" class="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold">Надіслати</button>
+                            </form>
+                        </div>
+
+                        <!-- Contact Info -->
+                        <div>
+                            <h2 class="text-2xl font-bold mb-6">Інформація</h2>
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-2xl">📍</div>
+                                    <div>
+                                        <div class="font-semibold">Адреса</div>
+                                        <div class="text-gray-400">вул. Автомобільна, 123, Київ</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-2xl">📞</div>
+                                    <div>
+                                        <div class="font-semibold">Телефон</div>
+                                        <div class="text-gray-400">+380 (44) 123-45-67</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-2xl">✉️</div>
+                                    <div>
+                                        <div class="font-semibold">Email</div>
+                                        <div class="text-gray-400">info@autoservice.pro</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-2xl">🕐</div>
+                                    <div>
+                                        <div class="font-semibold">Години роботи</div>
+                                        <div class="text-gray-400">Пн-Пт: 8:00-20:00<br>Сб: 9:00-18:00<br>Нд: 10:00-16:00</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Social Media -->
+                            <div class="mt-8">
+                                <h3 class="text-xl font-bold mb-4">Соціальні мережі</h3>
+                                <div class="flex space-x-4">
+                                    <a href="#" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg">Facebook</a>
+                                    <a href="#" class="px-4 py-2 bg-pink-600 hover:bg-pink-700 rounded-lg">Instagram</a>
+                                    <a href="#" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded-lg">Telegram</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map -->
+                    <div class="mt-12">
+                        <h2 class="text-2xl font-bold mb-6">Мапа</h2>
+                        <div class="bg-slate-800 h-96 rounded-lg flex items-center justify-center">
+                            <div class="text-gray-400">Інтерактивна мапа буде тут</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard" class="page">
+            <section class="py-20 bg-slate-950">
+                <div class="container mx-auto px-4">
+                    <h1 class="text-5xl font-bold text-center mb-12">Особистий кабінет</h1>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- User Info -->
+                        <div class="bg-slate-900 p-6 rounded-lg">
+                            <h2 class="text-2xl font-bold mb-4">Мій профіль</h2>
+                            <div id="userInfo" class="space-y-3">
+                                <!-- User info will be loaded dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="bg-slate-900 p-6 rounded-lg">
+                            <h2 class="text-2xl font-bold mb-4">Статистика</h2>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span>Кількість авто:</span>
+                                    <span id="carCount" class="font-bold">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Записи:</span>
+                                    <span id="appointmentCount" class="font-bold">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Витрати:</span>
+                                    <span id="totalSpent" class="font-bold">0 грн</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="bg-slate-900 p-6 rounded-lg">
+                            <h2 class="text-2xl font-bold mb-4">Остання активність</h2>
+                            <div id="recentActivity" class="space-y-2">
+                                <!-- Activity will be loaded dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommendations -->
+                    <div class="mt-8 bg-slate-900 p-6 rounded-lg">
+                        <h2 class="text-2xl font-bold mb-4">Рекомендації</h2>
+                        <div id="recommendations" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Recommendations will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- My Cars Page -->
+        <div id="my-cars" class="page">
+            <section class="py-20 bg-slate-950">
+                <div class="container mx-auto px-4">
+                    <div class="flex justify-between items-center mb-12">
+                        <h1 class="text-5xl font-bold">Мої авто</h1>
+                        <button onclick="showAddCarModal()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold">
+                            + Додати авто
+                        </button>
+                    </div>
+                    
+                    <div id="carsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Cars will be loaded dynamically -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- My Appointments Page -->
+        <div id="my-appointments" class="page">
+            <section class="py-20 bg-slate-950">
+                <div class="container mx-auto px-4">
+                    <div class="flex justify-between items-center mb-12">
+                        <h1 class="text-5xl font-bold">Мої записи</h1>
+                        <button onclick="showAppointmentModal()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-semibold">
+                            + Створити запис
+                        </button>
+                    </div>
+                    
+                    <div id="appointmentsList" class="space-y-4">
+                        <!-- Appointments will be loaded dynamically -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Admin Page -->
+        <div id="admin" class="page" data-role="admin">
+            <section class="py-20 bg-slate-950">
+                <div class="container mx-auto px-4">
+                    <h1 class="text-5xl font-bold text-center mb-12">Адмін панель</h1>
+                    
+                    <!-- Admin Tabs -->
+                    <div class="flex flex-wrap justify-center gap-4 mb-12">
+                        <button class="admin-tab-btn px-6 py-3 bg-indigo-600 rounded-lg" data-tab="users">Користувачі</button>
+                        <button class="admin-tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="bookings">Бронювання</button>
+                        <button class="admin-tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="services">Послуги</button>
+                        <button class="admin-tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="reports">Звіти</button>
+                        <button class="admin-tab-btn px-6 py-3 bg-slate-700 rounded-lg" data-tab="logs">Логи</button>
+                    </div>
+
+                    <!-- Admin Content -->
+                    <div id="adminContent">
+                        <!-- Content will be loaded dynamically -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Add Car Modal -->
+    <div id="addCarModal" class="fixed inset-0 bg-black/50 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto zoom-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">Додати нове авто</h2>
+                    <button onclick="closeAddCarModal()" class="text-gray-400 hover:text-white">✕</button>
+                </div>
+                
+                <form id="addCarForm" class="space-y-4">
+                    <!-- Car Search -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Марка</label>
+                            <select id="carBrand" class="w-full px-4 py-3 bg-slate-800 rounded-lg" required>
+                                <option value="">Оберіть марку</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Модель</label>
+                            <select id="carModel" class="w-full px-4 py-3 bg-slate-800 rounded-lg" disabled required>
+                                <option value="">Спочатку оберіть марку</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Car Details -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <input type="number" placeholder="Рік випуску" class="px-4 py-3 bg-slate-800 rounded-lg" required>
+                        <input type="number" placeholder="Пробіг (км)" class="px-4 py-3 bg-slate-800 rounded-lg" required>
+                        <input type="text" placeholder="VIN-код" class="px-4 py-3 bg-slate-800 rounded-lg" required>
+                        <input type="text" placeholder="Колір" class="px-4 py-3 bg-slate-800 rounded-lg">
+                        <select class="px-4 py-3 bg-slate-800 rounded-lg">
+                            <option>Тип кузова</option>
+                            <option>Седан</option>
+                            <option>Хетчбек</option>
+                            <option>Універсал</option>
+                            <option>CUV</option>
+                            <option>SUV</option>
+                            <option>Пікап</option>
+                        </select>
+                        <select class="px-4 py-3 bg-slate-800 rounded-lg">
+                            <option>Коробка передач</option>
+                            <option>Механіка</option>
+                            <option>Автомат</option>
+                            <option>Робот</option>
+                            <option>Варіатор</option>
+                        </select>
+                        <select class="px-4 py-3 bg-slate-800 rounded-lg">
+                            <option>Привід</option>
+                            <option>Передній</option>
+                            <option>Задній</option>
+                            <option>Повний</option>
+                        </select>
+                        <input type="number" placeholder="Потужність (к.с.)" class="px-4 py-3 bg-slate-800 rounded-lg">
+                        <input type="number" placeholder="Об'єм двигуна (л)" class="px-4 py-3 bg-slate-800 rounded-lg">
+                        <input type="number" placeholder="Кількість місць" class="px-4 py-3 bg-slate-800 rounded-lg">
+                        <select class="px-4 py-3 bg-slate-800 rounded-lg">
+                            <option>Паливо</option>
+                            <option>Бензин</option>
+                            <option>Дизель</option>
+                            <option>Газ</option>
+                            <option>Гібрид</option>
+                            <option>Електро</option>
+                        </select>
+                        <select class="px-4 py-3 bg-slate-800 rounded-lg">
+                            <option>Еко-клас</option>
+                            <option>Euro 2</option>
+                            <option>Euro 3</option>
+                            <option>Euro 4</option>
+                            <option>Euro 5</option>
+                            <option>Euro 6</option>
+                        </select>
+                        <input type="text" placeholder="Тип акумулятора" class="px-4 py-3 bg-slate-800 rounded-lg">
+                    </div>
+
+                    <div class="flex justify-end space-x-4">
+                        <button type="button" onclick="closeAddCarModal()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg">
+                            Скасувати
+                        </button>
+                        <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 rounded-lg">
+                            Додати авто
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <div class="text-xl">Обробка...</div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

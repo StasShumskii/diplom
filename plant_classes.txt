@@ -1,0 +1,121 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide empty members
+
+package accounts {
+  class User {
+    -role: CharField
+    -phone: CharField
+    -avatar: ImageField
+    +str()
+  }
+  enum UserRole {
+    CLIENT
+    MANAGER
+    MECHANIC
+    ADMIN
+  }
+}
+
+package cars {
+  class CarBrand {
+    -name: CharField
+    -logo: ImageField
+    +str()
+  }
+  
+  class CarModel {
+    -name: CharField
+    -year_start: Integer
+    -year_end: Integer
+    +str()
+  }
+  
+  class UserCar {
+    -vin: CharField
+    -license_plate: CharField
+    -year: Integer
+    -mileage: Integer
+    +str()
+  }
+}
+
+package services {
+  class ServiceCategory {
+    -name: CharField
+    -icon: CharField
+    +str()
+  }
+  
+  class Service {
+    -name: CharField
+    -description: TextField
+    -base_price: DecimalField
+    -estimated_time: DurationField
+    +str()
+  }
+  
+  class Part {
+    -name: CharField
+    -code: CharField
+    -price: DecimalField
+    -stock: Integer
+    +str()
+  }
+}
+
+package bookings {
+  class Booking {
+    -scheduled_at: DateTimeField
+    -status: CharField
+    -total_cost: DecimalField
+    -notes: TextField
+    -created_at: DateTimeField
+    +str()
+  }
+  enum BookingStatus {
+    PENDING
+    CONFIRMED
+    IN_PROGRESS
+    DONE
+    CANCELLED
+  }
+  
+  class OrderItem {
+    -price_at_booking: DecimalField
+    +str()
+  }
+  
+  class Invoice {
+    -issued_at: DateTimeField
+    -is_paid: BooleanField
+    -pdf_file: FileField
+    +str()
+  }
+}
+
+package notifications {
+  class Notification {
+    -title: CharField
+    -message: TextField
+    -is_read: BooleanField
+    -created_at: DateTimeField
+    +str()
+  }
+}
+
+UserRole --* User
+User --> UserCar
+User --> Booking
+User --> Notification
+
+CarBrand "1" --> "*" CarModel
+CarModel "1" --> "*" UserCar
+UserCar "1" --> "*" Booking
+
+ServiceCategory "1" --> "*" Service
+Service "1" --> "*" OrderItem
+Booking "1" --> "*" OrderItem
+Booking "1" --> "1" Invoice
+
+@enduml

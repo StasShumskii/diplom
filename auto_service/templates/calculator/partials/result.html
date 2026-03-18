@@ -1,0 +1,38 @@
+<div class="glass-panel p-10 rounded-[40px] border-brand-solar/20 bg-brand-solar/5 flex flex-col justify-between solar-shadow animate-in fade-in zoom-in duration-300">
+    <div class="space-y-8">
+        <div class="text-center space-y-2">
+            <div class="orbitron text-[10px] uppercase font-black tracking-[0.4em] text-brand-solar">Попередній прорахунок</div>
+            <div class="orbitron text-5xl font-black text-white">{{ total|floatformat:0 }} <span class="text-xl">₴</span></div>
+        </div>
+
+        <div class="divider border-white/5 opacity-50"></div>
+
+        <div class="space-y-4">
+            <h4 class="orbitron text-[10px] uppercase font-black tracking-widest text-slate-500">AI РЕКОМЕНДАЦІЇ</h4>
+            <div class="space-y-3">
+                {% for rec in recommendations %}
+                <div class="flex items-start gap-4 p-4 rounded-xl bg-white/5 border border-white/5">
+                    <i data-lucide="info" class="w-4 h-4 text-brand-solar shrink-0"></i>
+                    <p class="text-[12px] font-bold text-slate-300">{{ rec }}</p>
+                </div>
+                {% empty %}
+                <div class="flex items-center gap-4 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+                    <p class="text-[12px] font-bold text-emerald-400">Система не виявила критичних ризиків</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="pt-10 space-y-4">
+        <a href="{% url 'bookings:create' %}" class="btn btn-solar w-full h-16 rounded-2xl shadow-xl hover:scale-105 transition-all text-sm tracking-widest">
+            ПЕРЕЙТИ ДО БРОНЮВАННЯ
+        </a>
+        <p class="text-[10px] text-center text-slate-500 font-bold uppercase tracking-widest">
+            * Фінальна вартість може бути скоригована після огляду
+        </p>
+    </div>
+</div>
+
+<script>lucide.createIcons();</script>

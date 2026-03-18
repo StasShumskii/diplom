@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Менеджер - AutoTech Pro{% endblock %}
+
+{% block content %}
+<div class="space-y-12">
+    <!-- Page Header -->
+    <div class="flex flex-col md:flex-row justify-between items-end gap-8">
+        <div>
+            <div class="text-cyber-purple font-black text-[10px] uppercase tracking-[0.4em]">Operations Center</div>
+            <h1 class="text-6xl font-black text-white tracking-tighter uppercase">MANAGEMENT <span class="gradient-text">PORTAL</span></h1>
+        </div>
+        <div class="flex gap-4">
+            <a href="{% url 'reports:analytics_report' %}" target="_blank" class="btn glass-panel border-cyber-purple/30 h-16 px-8 rounded-2xl text-sm font-semibold uppercase hover:bg-cyber-purple/20">
+                <i data-lucide="file-down" class="w-5 h-5 mr-2"></i>Експорт PDF
+            </a>
+            <a href="{% url 'bookings:create' %}" class="btn-cyber h-16 px-10 rounded-2xl shadow-xl text-base font-semibold">
+                <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i>СТВОРИТИ ЗАМОВЛЕННЯ
+            </a>
+        </div>
+    </div>
+
+    <!-- Manager Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="glass-panel p-8 rounded-[32px] border-cyber-purple/20 space-y-4">
+            <div class="text-[10px] font-black uppercase tracking-widest text-gray-500">Виручка (DONE)</div>
+            <div class="text-4xl font-black text-white">{{ revenue|floatformat:0 }} ₴</div>
+            <progress class="progress progress-success w-full h-1 mt-2 opacity-50" value="75" max="100"></progress>
+        </div>
+        <div class="glass-panel p-8 rounded-[32px] border-cyber-purple/20 space-y-4">
+            <div class="text-[10px] font-black uppercase tracking-widest text-gray-500">Всього записів</div>
+            <div class="text-4xl font-black text-white">{{ total_bookings }}</div>
+            <div class="text-[10px] font-black text-cyber-cyan uppercase tracking-widest">+12 за сьогодні</div>
+        </div>
+        <div class="glass-panel p-8 rounded-[32px] border-cyber-purple/20 space-y-4">
+            <div class="text-[10px] font-black uppercase tracking-widest text-gray-500">CSAT Score</div>
+            <div class="text-4xl font-black text-white">4.9/5</div>
+            <div class="flex gap-1 text-yellow-400">
+                <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+            </div>
+        </div>
+        <div class="glass-panel p-8 rounded-[32px] border-cyber-cyan/20 bg-cyber-cyan/5 space-y-4">
+            <div class="text-[10px] font-black uppercase tracking-widest text-cyber-cyan">Shop Load</div>
+            <div class="text-4xl font-black text-white">82%</div>
+            <div class="w-full bg-cyber-purple/20 h-1.5 rounded-full overflow-hidden">
+                <div class="bg-cyber-cyan h-full w-[82%]"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts and Recent Activity -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div class="lg:col-span-2 space-y-8">
+            <div class="flex justify-between items-end">
+                <h3 class="text-2xl font-black uppercase text-white">ОСТАННІ ОПЕРАЦІЇ</h3>
+            </div>
+            <div class="glass-panel rounded-[32px] border-cyber-purple/20 overflow-hidden">
+                <table class="table w-full border-separate border-spacing-y-2 px-8">
+                    <thead>
+                        <tr class="text-gray-500 border-none uppercase text-[10px] font-black tracking-widest">
+                            <th class="bg-transparent pl-8">Клієнт / Авто</th>
+                            <th class="bg-transparent">Дата</th>
+                            <th class="bg-transparent text-center">Статус</th>
+                            <th class="bg-transparent text-right pr-8">Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in recent_bookings %}
+                        <tr class="glass-panel border-cyber-purple/10 hover:bg-cyber-purple/5 transition-all">
+                            <td class="bg-transparent pl-8">
+                                <div class="font-black text-white">{{ booking.client.username }}</div>
+                                <div class="text-[10px] font-bold text-gray-500">{{ booking.car.model }}</div>
+                            </td>
+                            <td class="bg-transparent text-xs font-bold opacity-60 text-gray-400">
+                                {{ booking.scheduled_at|date:"d.m.Y H:i" }}
+                            </td>
+                            <td class="bg-transparent text-center">
+                                <div class="badge bg-cyber-purple/20 border-cyber-purple/30 text-cyber-purple text-[8px] font-black uppercase p-3">
+                                    {{ booking.get_status_display }}
+                                </div>
+                            </td>
+                            <td class="bg-transparent text-right pr-8">
+                                <a href="{% url 'reports:booking_report' booking.id %}" target="_blank" class="btn btn-ghost btn-circle btn-sm text-cyber-cyan">
+                                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="space-y-8">
+            <h3 class="text-2xl font-black uppercase text-white">АНАЛІТИКА ЦЕХУ</h3>
+            <div class="glass-panel p-8 rounded-[32px] border-cyber-purple/20 h-[400px] flex items-center justify-center">
+                <div id="revenueChart" class="w-full h-full"></div>
+            </div>
+            
+            <div class="glass-panel p-8 rounded-[32px] border-cyber-cyan/10 bg-cyber-cyan/5 space-y-6">
+                <h4 class="text-sm font-black text-cyber-cyan uppercase">ПЕРСОНАЛ ОНЛАЙН</h4>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                            <span class="text-xs font-bold text-gray-300">Олександр М. (Механік)</span>
+                        </div>
+                        <span class="text-[10px] font-black text-gray-500 uppercase">3 ЗАВДАННЯ</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var options = {
+            series: [44, 55, 13, 33],
+            chart: { type: 'donut', height: 350, background: 'transparent' },
+            colors: ['#8b5cf6', '#0a2540', '#06b6d4', '#ec4899'],
+            labels: ['ТО', 'Діагностика', 'Електрика', 'Кузів'],
+            stroke: { show: false },
+            legend: { position: 'bottom', labels: { colors: '#94a3b8' } },
+            dataLabels: { enabled: false },
+            plotOptions: {
+                pie: {
+                    donut: { size: '85%' }
+                }
+            }
+        };
+        var chart = new ApexCharts(document.querySelector("#revenueChart"), options);
+        chart.render();
+    });
+</script>
+{% endblock %}

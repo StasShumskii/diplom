@@ -1,0 +1,4 @@
+<option disabled selected>Оберіть модель</option>
+{% for model in models %}
+    <option value="{{ model.id }}">{{ model.name }} ({{ model.year_start }}{% if model.year_end %}-{{ model.year_end }}{% else %}+{% endif %})</option>
+{% endfor %}
