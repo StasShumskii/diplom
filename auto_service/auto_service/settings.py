@@ -10,7 +10,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-premium-2026-key-!@#$%')
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = [os.getenv('RENDER_EXTERNAL_HOSTNAME', 'localhost')]
+ALLOWED_HOSTS = [os.getenv('RENDER_EXTERNAL_HOSTNAME', 'localhost'), '127.0.0.1']
 
 INSTALLED_APPS = [
     'daphne',  # Must be at the top
@@ -172,4 +172,20 @@ SOCIALACCOUNT_PROVIDERS = {
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_AUTO_LOGIN = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
+
+LOGIN_REDIRECT_URL = '/profile/'
+ACCOUNT_SIGNUP_REDIRECT_URL = '/profile/'
+LOGOUT_REDIRECT_URL = '/'
+
+ACCOUNT_ADAPTER = 'accounts.adapter.AccountAdapter'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@autotech.com.ua')

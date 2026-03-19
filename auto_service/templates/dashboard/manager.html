@@ -12,6 +12,15 @@
             <h1 class="text-6xl font-black text-white tracking-tighter uppercase">MANAGEMENT <span class="gradient-text">PORTAL</span></h1>
         </div>
         <div class="flex gap-4">
+            <a href="{% url 'dashboard:manage_users' %}" class="btn glass-panel border-cyber-purple/30 h-16 px-8 rounded-2xl text-sm font-semibold uppercase hover:bg-cyber-purple/20">
+                <i data-lucide="users" class="w-5 h-5 mr-2"></i>КОРИСТУВАЧІ
+            </a>
+            <a href="{% url 'dashboard:proposals' %}" class="btn glass-panel border-cyber-purple/30 h-16 px-8 rounded-2xl text-sm font-semibold uppercase hover:bg-cyber-purple/20 relative">
+                <i data-lucide="message-square" class="w-5 h-5 mr-2"></i>ПРОПОЗИЦІЇ
+                {% if proposals_count > 0 %}
+                <span class="absolute -top-1 -right-1 bg-cyber-pink text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">{{ proposals_count }}</span>
+                {% endif %}
+            </a>
             <a href="{% url 'reports:analytics_report' %}" target="_blank" class="btn glass-panel border-cyber-purple/30 h-16 px-8 rounded-2xl text-sm font-semibold uppercase hover:bg-cyber-purple/20">
                 <i data-lucide="file-down" class="w-5 h-5 mr-2"></i>Експорт PDF
             </a>
@@ -45,10 +54,11 @@
             </div>
         </div>
         <div class="glass-panel p-8 rounded-[32px] border-cyber-cyan/20 bg-cyber-cyan/5 space-y-4">
-            <div class="text-[10px] font-black uppercase tracking-widest text-cyber-cyan">Shop Load</div>
-            <div class="text-4xl font-black text-white">82%</div>
+            <div class="text-[10px] font-black uppercase tracking-widest text-cyber-cyan">Завантаженість</div>
+            <div class="text-4xl font-black text-white">{{ shop_load }}%</div>
+            <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ booked_slots }}/{{ total_slots }} сьогодні</div>
             <div class="w-full bg-cyber-purple/20 h-1.5 rounded-full overflow-hidden">
-                <div class="bg-cyber-cyan h-full w-[82%]"></div>
+                <div class="bg-cyber-cyan h-full" style="width: {{ shop_load }}%"></div>
             </div>
         </div>
     </div>
@@ -114,6 +124,96 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    
+    <!-- Reviews Section -->
+    <div class="space-y-8 mt-12">
+        <div class="flex justify-between items-end">
+            <h3 class="text-2xl font-black uppercase text-white">ВІДГУКИ КЛІЄНТІВ</h3>
+            {% if pending_reviews_count %}
+            <span class="badge bg-cyber-pink/20 border-cyber-pink/30 text-cyber-pink text-xs font-bold px-3 py-2">
+                {{ pending_reviews_count }} нових
+            </span>
+            {% endif %}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for review in all_reviews %}
+            <div class="glass-panel p-6 rounded-[24px] border-cyber-purple/20">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-cyber-purple/20 flex items-center justify-center">
+                            <span class="font-bold text-cyber-purple">{{ review.user.username|slice:":1"|upper }}</span>
+                        </div>
+                        <div>
+                            <div class="font-bold text-white">{{ review.user.username }}</div>
+                            <div class="text-xs text-gray-500">{{ review.created_at|date:"d.m.Y" }}</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-0.5">
+                        {% for i in "12345" %}
+                        <i data-lucide="star" class="w-3 h-3 {% if forloop.counter <= review.rating %}text-yellow-400 fill-current{% else %}text-gray-600{% endif %}"></i>
+                        {% endfor %}
+                    </div>
+                </div>
+                <h4 class="font-bold text-white mb-2">{{ review.title }}</h4>
+                <p class="text-gray-400 text-sm">{{ review.comment }}</p>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-8 text-gray-500">
+                Відгуків поки немає
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Proposals Section -->
+    <div class="space-y-8 mt-12">
+        <div class="flex justify-between items-end">
+            <h3 class="text-2xl font-black uppercase text-white">ОСТАННІ ПРОПОЗИЦІЇ</h3>
+            {% if proposals_count > 0 %}
+            <span class="badge bg-cyber-cyan/20 border-cyber-cyan/30 text-cyber-cyan text-xs font-bold px-3 py-2">
+                {{ proposals_count }} нових
+            </span>
+            {% endif %}
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for proposal in proposals|slice:":6" %}
+            <div class="glass-panel p-6 rounded-[24px] border-cyber-purple/20 {% if not proposal.is_read %}border-l-4 border-l-cyber-cyan{% endif %}">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="message-square" class="w-4 h-4 text-cyber-purple"></i>
+                        <span class="text-xs text-gray-500">{{ proposal.created_at|date:"d.m H:i" }}</span>
+                    </div>
+                    {% if proposal.is_processed %}
+                    <span class="badge bg-green-500/20 border-green-500/30 text-green-400 text-[8px] font-bold uppercase px-2 py-1">Оброблено</span>
+                    {% elif proposal.is_read %}
+                    <span class="badge bg-gray-500/20 border-gray-500/30 text-gray-400 text-[8px] font-bold uppercase px-2 py-1">Переглянуто</span>
+                    {% else %}
+                    <span class="badge bg-cyber-cyan/20 border-cyber-cyan/30 text-cyber-cyan text-[8px] font-bold uppercase px-2 py-1">Нове</span>
+                    {% endif %}
+                </div>
+                <h4 class="font-bold text-white mb-2">{{ proposal.subject }}</h4>
+                <p class="text-gray-400 text-sm line-clamp-3">{{ proposal.message|truncatechars:100 }}</p>
+                {% if proposal.phone %}
+                <div class="mt-3 pt-3 border-t border-cyber-purple/10">
+                    <span class="text-xs text-gray-500">
+                        <i data-lucide="phone" class="w-3 h-3 inline mr-1"></i>
+                        {{ proposal.phone }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-8 text-gray-500">
+                Пропозицій поки немає
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center">
+            <a href="{% url 'dashboard:proposals' %}" class="btn glass-panel border-cyber-purple/30 px-8 rounded-xl text-sm font-semibold uppercase hover:bg-cyber-purple/20">
+                Всі пропозиції
+            </a>
         </div>
     </div>
 </div>

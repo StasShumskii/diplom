@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load crispy_forms_tags %}
 
 {% block title %}Реєстрація - AutoTech Pro{% endblock %}
 
@@ -8,7 +7,6 @@
 <div class="min-h-[80vh] flex items-center justify-center px-4 py-8">
     <div class="w-full max-w-md">
         <div class="glass-panel rounded-[32px] p-8">
-            <!-- Logo -->
             <div class="text-center mb-8">
                 <a href="/" class="inline-flex items-center gap-3 mb-4">
                     <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-cyber-purple to-cyber-cyan flex items-center justify-center">
@@ -19,21 +17,34 @@
                 <p class="text-gray-400 mt-2">Створіть особистий кабінет</p>
             </div>
 
-            <!-- Signup Form -->
             <form method="post" action="{% url 'account_signup' %}" class="space-y-5">
                 {% csrf_token %}
                 
                 {% if form.errors %}
                 <div class="bg-red-500/20 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm">
-                    {{ form.errors }}
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
                 </div>
                 {% endif %}
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Ім'я користувача</label>
-                    <input type="text" name="username" 
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Ім'я</label>
+                    <input type="text" name="first_name" 
                            class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30 focus:border-cyber-purple h-12"
-                           placeholder="username" required>
+                           placeholder="Ваше ім'я">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Прізвище</label>
+                    <input type="text" name="last_name" 
+                           class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30 focus:border-cyber-purple h-12"
+                           placeholder="Ваше прізвище">
                 </div>
 
                 <div>
@@ -72,21 +83,18 @@
                 </button>
             </form>
 
-            <!-- Divider -->
             <div class="flex items-center gap-4 my-6">
                 <div class="flex-1 h-px bg-cyber-purple/20"></div>
                 <span class="text-gray-500 text-sm">або</span>
                 <div class="flex-1 h-px bg-cyber-purple/20"></div>
             </div>
 
-            <!-- Social Signup -->
             {% if SOCIALACCOUNT_ENABLED %}
             <div class="space-y-3">
                 {% include "socialaccount/snippets/provider_list.html" with process="signup" %}
             </div>
             {% endif %}
 
-            <!-- Login Link -->
             <div class="text-center mt-6 pt-6 border-t border-cyber-purple/20">
                 <p class="text-gray-400">Вже маєте акаунт? 
                     <a href="{% url 'account_login' %}" class="text-cyber-cyan font-semibold hover:underline">Увійти</a>

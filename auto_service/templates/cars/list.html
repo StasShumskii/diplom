@@ -36,6 +36,17 @@
                         <div class="w-1 h-1 bg-slate-700 rounded-full"></div>
                         <span>{{ car.mileage }} КМ пробігу</span>
                     </div>
+                    {% if car.fuel_type or car.engine_volume %}
+                    <div class="flex items-center gap-4 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                        {% if car.fuel_type %}
+                        <span>{{ car.get_fuel_type_display }}</span>
+                        <div class="w-1 h-1 bg-slate-700 rounded-full"></div>
+                        {% endif %}
+                        {% if car.engine_volume %}
+                        <span>{{ car.engine_volume }} л</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
 
                 <div class="pt-8 border-t border-white/5 flex gap-4">

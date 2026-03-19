@@ -13,4 +13,12 @@ urlpatterns = [
     path('bonus/spend/', views.spend_bonus, name='spend_bonus'),
     path('reviews/', views.reviews_view, name='reviews'),
     path('contacts/', views.contacts_view, name='contacts'),
+    path('proposals/', views.proposals_view, name='proposals'),
+    path('proposals/<int:proposal_id>/read/', views.mark_proposal_read, name='proposal_read'),
+    path('proposals/<int:proposal_id>/processed/', views.mark_proposal_processed, name='proposal_processed'),
+    path('users/', views.manage_users_view, name='manage_users'),
+    path('users/create/', views.create_user_view, name='create_user'),
+    path('users/<int:user_id>/toggle/', views.toggle_user_status, name='toggle_user'),
+    path('api/proposals/count/', views.get_proposals_count, name='proposals_count'),
+    path('api/proposals/list/', views.get_proposals_list, name='proposals_list'),
 ]

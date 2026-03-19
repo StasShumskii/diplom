@@ -23,6 +23,11 @@ def add_car_ajax(request):
         year = request.POST.get('year')
         license_plate = request.POST.get('license_plate')
         vin = request.POST.get('vin')
+        mileage = request.POST.get('mileage', 0)
+        engine_type = request.POST.get('engine_type')
+        engine_volume = request.POST.get('engine_volume')
+        fuel_type = request.POST.get('fuel_type')
+        technical_condition = request.POST.get('technical_condition', 'GOOD')
         
         try:
             car_model = CarModel.objects.get(id=model_id)
@@ -31,7 +36,12 @@ def add_car_ajax(request):
                 model=car_model,
                 year=int(year),
                 license_plate=license_plate,
-                vin=vin if vin else None
+                vin=vin if vin else None,
+                mileage=int(mileage) if mileage else 0,
+                engine_type=engine_type if engine_type else None,
+                engine_volume=float(engine_volume) if engine_volume else None,
+                fuel_type=fuel_type if fuel_type else None,
+                technical_condition=technical_condition if technical_condition else 'GOOD'
             )
             return JsonResponse({'status': 'success', 'message': 'Авто додано успішно!'})
         except Exception as e:

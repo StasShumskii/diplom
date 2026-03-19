@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Керування користувачами - AutoTech Pro{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-end gap-4">
+        <div>
+            <div class="text-cyber-purple font-black text-[10px] uppercase tracking-[0.4em]">Administration</div>
+            <h1 class="text-4xl font-black text-white uppercase">КОРИСТУВАЧІ</h1>
+        </div>
+        <button class="btn-cyber" onclick="document.getElementById('create-user-modal').showModal()">
+            <i data-lucide="user-plus" class="w-5 h-5 mr-2"></i>ДОДАТИ КОРИСТУВАЧА
+        </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="cyber-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold gradient-text">{{ users.count }}</div>
+            <div class="text-sm text-gray-400">Всього</div>
+        </div>
+        <div class="cyber-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold text-green-400">{{ users|length }}</div>
+            <div class="text-sm text-gray-400">Активних</div>
+        </div>
+        <div class="cyber-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold text-cyber-cyan">{{ users|length }}</div>
+            <div class="text-sm text-gray-400">Клієнтів</div>
+        </div>
+        <div class="cyber-card p-4 rounded-xl text-center">
+            <div class="text-2xl font-bold text-cyber-purple">{{ users|length }}</div>
+            <div class="text-sm text-gray-400">Персонал</div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="glass-panel rounded-[32px] overflow-hidden">
+        <table class="table w-full">
+            <thead>
+                <tr class="border-b border-cyber-purple/20">
+                    <th class="bg-transparent text-gray-400 font-bold">Користувач</th>
+                    <th class="bg-transparent text-gray-400 font-bold">Роль</th>
+                    <th class="bg-transparent text-gray-400 font-bold">Телефон</th>
+                    <th class="bg-transparent text-gray-400 font-bold">Дата реєстрації</th>
+                    <th class="bg-transparent text-gray-400 font-bold">Статус</th>
+                    <th class="bg-transparent text-gray-400 font-bold">Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr class="border-b border-cyber-purple/10 hover:bg-cyber-purple/5">
+                    <td class="bg-transparent">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-cyber-purple/20 flex items-center justify-center">
+                                <span class="font-bold text-cyber-purple">{{ user.username|slice:1|upper }}</span>
+                            </div>
+                            <div>
+                                <div class="font-bold text-white">{{ user.username }}</div>
+                                <div class="text-xs text-gray-500">{{ user.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="bg-transparent">
+                        <span class="badge {% if user.role == 'ADMIN' %}bg-red-500/20 text-red-400{% elif user.role == 'MANAGER' %}bg-purple-500/20 text-purple-400{% elif user.role == 'MECHANIC' %}bg-cyan-500/20 text-cyan-400{% else %}bg-green-500/20 text-green-400{% endif %} border-0">
+                            {{ user.get_role_display }}
+                        </span>
+                    </td>
+                    <td class="bg-transparent text-gray-300">
+                        {{ user.phone|default:"—" }}
+                    </td>
+                    <td class="bg-transparent text-gray-300">
+                        {{ user.date_joined|date:"d.m.Y" }}
+                    </td>
+                    <td class="bg-transparent">
+                        {% if user.is_active %}
+                        <span class="badge bg-green-500/20 text-green-400 border-0">Активний</span>
+                        {% else %}
+                        <span class="badge bg-red-500/20 text-red-400 border-0">Деактивований</span>
+                        {% endif %}
+                    </td>
+                    <td class="bg-transparent">
+                        <div class="flex gap-2">
+                            {% if user != request.user %}
+                            <button onclick="toggleUserStatus({{ user.id }})" class="btn btn-sm btn-ghost {% if user.is_active %}text-red-400{% else %}text-green-400{% endif %}" title="{% if user.is_active %}Деактивувати{% else %}Активувати{% endif %}">
+                                {% if user.is_active %}
+                                <i data-lucide="user-minus" class="w-4 h-4"></i>
+                                {% else %}
+                                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                                {% endif %}
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create User Modal -->
+<dialog id="create-user-modal" class="modal">
+    <div class="modal-box cyber-card max-w-lg">
+        <h3 class="font-bold text-2xl mb-6 text-white text-center">Додати користувача</h3>
+        <form id="create-user-form" class="space-y-4">
+            {% csrf_token %}
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Ім'я</label>
+                    <input type="text" name="first_name" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" placeholder="Ім'я">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Прізвище</label>
+                    <input type="text" name="last_name" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" placeholder="Прізвище">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Email *</label>
+                <input type="email" name="email" required class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" placeholder="email@example.com">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Телефон</label>
+                <input type="tel" name="phone" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" placeholder="+38 (0__) ___-__-__">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Роль *</label>
+                <select name="role" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                    <option value="CLIENT">Клієнт</option>
+                    <option value="MECHANIC">Механік</option>
+                    <option value="MANAGER">Менеджер</option>
+                    <option value="ADMIN">Адмін</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Пароль *</label>
+                <input type="password" name="password" required class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30" placeholder="Пароль">
+            </div>
+            <div id="create-user-message" class="text-center text-sm"></div>
+            <div class="modal-action justify-center">
+                <button type="button" class="btn btn-ghost" onclick="document.getElementById('create-user-modal').close()">Скасувати</button>
+                <button type="submit" class="btn-cyber" id="create-user-btn">Створити</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+<script>
+document.getElementById('create-user-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
+    const btn = document.getElementById('create-user-btn');
+    const msg = document.getElementById('create-user-message');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span>';
+    
+    fetch("{% url 'dashboard:create_user' %}", {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = 'Створити';
+        
+        if (data.status === 'success') {
+            msg.innerHTML = '<span class="text-green-400">' + data.message + '</span>';
+            setTimeout(() => {
+                document.getElementById('create-user-modal').close();
+                location.reload();
+            }, 1500);
+        } else {
+            msg.innerHTML = '<span class="text-red-400">' + data.message + '</span>';
+        }
+    })
+    .catch(error => {
+        btn.disabled = false;
+        btn.innerHTML = 'Створити';
+        msg.innerHTML = '<span class="text-red-400">Помилка при створенні користувача</span>';
+    });
+});
+
+function toggleUserStatus(userId) {
+    if (!confirm('Ви впевнені?')) return;
+    
+    fetch(`/users/${userId}/toggle/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert(data.message);
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+});
+</script>
+{% endblock %}

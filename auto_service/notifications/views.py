@@ -41,7 +41,12 @@ def add_review(request):
             title=title,
             comment=comment
         )
-        return JsonResponse({'status': 'success', 'message': 'Дякуємо за відгук!'})
+        
+        from bookings.models import BonusPoints
+        bonus_account, _ = BonusPoints.objects.get_or_create(user=request.user)
+        bonus_account.add_points(50, 'За відгук')
+        
+        return JsonResponse({'status': 'success', 'message': 'Дякуємо за відгук! Вам нараховано 50 балів!'})
     return JsonResponse({'status': 'error', 'message': 'Заповніть всі поля'})
 
 

@@ -409,6 +409,31 @@
             document.querySelectorAll('.scroll-animate').forEach(el => {
                 observer.observe(el);
             });
+            
+            // Real-time proposals polling for managers
+            const userRole = '{{ request.user.role }}';
+            if (userRole === 'MANAGER' || userRole === 'ADMIN') {
+                function checkProposals() {
+                    fetch('/api/proposals/count/')
+                        .then(response => response.json())
+                        .then(data => {
+                            const badge = document.getElementById('proposals-badge');
+                            if (badge) {
+                                if (data.count > 0) {
+                                    badge.textContent = data.count;
+                                    badge.classList.remove('hidden');
+                                } else {
+                                    badge.classList.add('hidden');
+                                }
+                            }
+                        })
+                        .catch(error => console.error('Error checking proposals:', error));
+                }
+                
+                // Check every 10 seconds
+                setInterval(checkProposals, 10000);
+                checkProposals();
+            }
         });
     </script>
     {% block extra_js %}{% endblock %}

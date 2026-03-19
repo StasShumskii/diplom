@@ -3,6 +3,23 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from cars.models import UserCar
 
+class UserProposal(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='proposals')
+    subject = models.CharField(max_length=255, verbose_name=_('Тема'))
+    message = models.TextField(verbose_name=_('Повідомлення'))
+    phone = models.CharField(max_length=20, blank=True, null=True, verbose_name=_('Телефон'))
+    is_read = models.BooleanField(default=False, verbose_name=_('Прочитано'))
+    is_processed = models.BooleanField(default=False, verbose_name=_('Оброблено'))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Proposal from {self.user.email}: {self.subject}"
+
+    class Meta:
+        verbose_name = _('Пропозиція користувача')
+        verbose_name_plural = _('Пропозиції користувачів')
+        ordering = ['-created_at']
+
 class Notification(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
     title = models.CharField(max_length=255, verbose_name=_('Заголовок'))

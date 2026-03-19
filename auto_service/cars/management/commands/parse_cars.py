@@ -1,0 +1,72 @@
+from django.core.management.base import BaseCommand
+from cars.models import CarBrand, CarModel
+import requests
+from bs4 import BeautifulSoup
+import time
+
+
+class Command(BaseCommand):
+    help = 'Parse car brands and models from other websites'
+
+    def add_arguments(self, parser):
+        parser.add_argument('--source', type=str, default='wiki', help='Source to parse from')
+
+    def handle(self, *args, **options):
+        source = options['source']
+        
+        if source == 'wiki':
+            self.parse_from_wikipedia()
+        elif source == 'auto':
+            self.parse_from_auto_ria()
+        else:
+            self.stdout.write(self.style.ERROR('Unknown source'))
+    
+    def parse_from_wikipedia(self):
+        self.stdout.write('Parsing car brands from Wikipedia...')
+        
+        brands_data = [
+            {'name': 'Toyota', 'models': ['Corolla', 'Camry', 'RAV4', 'Land Cruiser', 'Highlander', 'Prius', 'C-HR', 'Yaris', 'Avensis', 'Verso', 'Tacoma', 'Tundra', '4Runner', 'Sequoia', 'Celica', 'Supra', 'GT86', 'Aqua', 'Sienna', 'Venza', 'Crown', 'Mirai', 'GR Supra', 'GR Corolla', 'Corolla Cross', 'Corolla Sport']},
+            {'name': 'BMW', 'models': ['3 Series', '5 Series', '7 Series', 'X3', 'X5', 'X7', 'X1', 'X6', 'M3', 'M5', 'X2', 'X4', '8 Series', 'Z4', 'i3', 'i4', 'iX', 'iX3', 'M4', 'M8', 'X4 M', 'X5 M', 'X6 M', 'M5 Competition', 'M8 Competition', '4 Series', '2 Series']},
+            {'name': 'Mercedes-Benz', 'models': ['C-Class', 'E-Class', 'S-Class', 'GLC', 'GLE', 'GLS', 'A-Class', 'B-Class', 'CLA', 'GLA', 'G-Class', 'CLS', 'SL', 'AMG GT', 'EQC', 'EQS', 'V-Class', 'X-Class', 'Citan', 'GLA', 'GLE Coupe', 'GLS Maybach']},
+            {'name': 'Audi', 'models': ['A3', 'A4', 'A6', 'A8', 'Q3', 'Q5', 'Q7', 'Q8', 'TT', 'R8', 'Q2', 'Q4 e-tron', 'A5', 'A7', 'e-tron', 'e-tron GT', 'RS3', 'RS6', 'RS7', 'SQ5', 'SQ7', 'Q5 Sportback', 'Q3 Sportback']},
+            {'name': 'Volkswagen', 'models': ['Golf', 'Passat', 'Tiguan', 'Polo', 'Touareg', 'Arteon', 'Jetta', 'T-Roc', 'Caddy', 'Amarok', 'ID.3', 'ID.4', 'ID.5', 'Multivan', 'Transporter', 'Caravelle', 'Teramont', 'Atlas', 'Taos', 'Taigo', 'Golf GTI', 'Golf R', 'Passat Variant']},
+            {'name': 'Ford', 'models': ['Focus', 'Mondeo', 'Kuga', 'EcoSport', 'Explorer', 'Mustang', 'Fiesta', 'Ranger', 'Edge', 'Transit', 'Puma', 'Bronco', 'Maverick', 'Galaxy', 'S-Max', 'Escape', 'Fusion', 'Flex', 'Taurus', 'Focus ST', 'Focus RS', 'Mustang GT', 'Ranger Raptor']},
+            {'name': 'Honda', 'models': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Pilot', 'Odyssey', 'Jazz', 'Insight', 'Ridgeline', 'FR-V', 'City', 'BR-V', 'WR-V', 'CR-Z', 'S2000', 'NSX', 'Element', 'Passport', 'HR-V Sport', 'Civic Type R']},
+            {'name': 'Hyundai', 'models': ['Elantra', 'Sonata', 'Tucson', 'Santa Fe', 'Creta', 'Kona', 'Palisade', 'Starex', 'Accent', 'Ioniq', 'Venue', 'Bayon', 'Nexo', 'Genesis G70', 'Genesis G80', 'Genesis G90', 'Tucson N Line', 'Ioniq 5', 'Ioniq 6', 'Staria']},
+            {'name': 'Kia', 'models': ['Optima', 'Forte', 'Sportage', 'Sorento', 'Telluride', 'Stonic', 'Ceed', 'Rio', 'Carnival', 'Seltos', 'Niro', 'EV6', 'EV9', 'K5', 'K8', 'Soul', 'Stinger', 'Mohave', 'Ray', 'Pride', 'K3', 'K9']},
+            {'name': 'Nissan', 'models': ['Altima', 'Maxima', 'Rogue', 'Pathfinder', 'Murano', 'Qashqai', 'Juke', 'Leaf', 'X-Trail', 'Armada', 'Frontier', 'Titan', 'Z', 'Ariya', 'Kicks', 'Sentra', 'Versa', 'Micra', 'Navara', 'Patrol', 'Patrol Y61', 'Navara Pro-4X']},
+            {'name': 'Mazda', 'models': ['Mazda3', 'Mazda6', 'CX-5', 'CX-9', 'CX-30', 'MX-5', 'CX-3', 'CX-50', 'MX-30', 'RX-8', 'CX-60', 'CX-90', 'CX-70', 'CX-80', 'Mazda2', 'BT-50', 'CX-4', 'Atenza', 'Demio', 'Biante', 'CX-90 PHEV']},
+            {'name': 'Volvo', 'models': ['S60', 'S90', 'V60', 'V90', 'XC40', 'XC60', 'XC90', 'XC70', 'S80', 'V40', 'V50', 'V90 Cross Country', 'S90 Recharge', 'XC60 Recharge', 'XC90 Recharge', 'C40', 'EX90', 'EX30', 'EM90', 'S60 Recharge']},
+            {'name': 'Porsche', 'models': ['911', 'Cayenne', 'Macan', 'Panamera', 'Taycan', 'Cayman', 'Boxster', '718 Cayman', '718 Boxster', 'Taycan Cross Turismo', 'Taycan Sport Turismo', '911 GT3', '911 Turbo', '911 GT2 RS', 'Cayenne Coupe', 'Macan T', 'Taycan 4S', 'Taycan Turbo', '911 Carrera']},
+            {'name': 'Lexus', 'models': ['ES', 'IS', 'GS', 'LS', 'RX', 'NX', 'LX', 'UX', 'GX', 'LC', 'RC', 'SC', 'LFA', 'RZ', 'TX', 'LM', 'UX300e', 'LS500h', 'RX500h', 'NX Overtrail', 'GX Overtrail']},
+            {'name': 'Subaru', 'models': ['Outback', 'Forester', 'Impreza', 'Legacy', 'XV', 'BRZ', 'WRX', 'Crosstrek', 'Ascent', 'Solterra', 'Tribeca', 'Baja', 'SVX', 'Justy', 'Dex', 'Exiga', 'Lucra', 'Pleo', 'Sambar', 'Stella', 'WRX STI']},
+            {'name': 'Mitsubishi', 'models': ['Outlander', 'Pajero', 'Lancer', 'Eclipse Cross', 'ASX', 'Montero', 'Space Star', 'Attrage', 'Xpander', 'L200', 'Lancer Evolution', 'Pajero Sport', 'Pajero IO', 'Minica', 'Town BOX', 'i-MiEV', 'eK space', 'Delica', 'Challenger', 'Endeavor']},
+            {'name': 'Peugeot', 'models': ['208', '308', '508', '2008', '3008', '5008', 'Partner', 'Rifter', 'Traveller', 'Boxer', '206', '207', '307', '407', '4007', '4008', '5007', 'Ion', 'e-208', 'e-2008', '308 SW', '508 SW']},
+            {'name': 'Renault', 'models': ['Clio', 'Megane', 'Talisman', 'Kadjar', 'Koleos', 'Arkana', 'Duster', 'Sandero', 'Logan', 'Trafic', 'Kangoo', 'Espace', 'Scenic', 'Grand Scenic', 'Captur', 'Austral', 'Rafale', 'Express', 'Master', 'ZOE', 'Kiger']},
+            {'name': 'Citroen', 'models': ['C3', 'C4', 'C5', 'C5 Aircross', 'C3 Aircross', 'Berlingo', 'Jumpy', 'SpaceTourer', 'DS3', 'DS7', 'C1', 'C-Elysee', 'C4 Picasso', 'C4 Spacetourer', 'Grand C4 Picasso', 'C5 X', 'Oli', 'e-C4', 'Ami', 'C4 X']},
+            {'name': 'Chery', 'models': ['Tiggo 4', 'Tiggo 7', 'Tiggo 8', 'Exeed TXL', 'Omoda C5', 'Arrizo 8', 'Tiggo 2', 'Bonus', 'Very', 'M11', 'Tiggo 3', 'Tiggo 5', 'Tiggo 5x', 'Tiggo 7 Pro', 'Tiggo 8 Pro', 'Tiggo 8 Pro Max', 'Exeed VX', 'Exeed LX', 'Exeed HS', 'Tiggo Pro']},
+            {'name': 'Skoda', 'models': ['Octavia', 'Fabia', 'Superb', 'Kodiaq', 'Karoq', 'Kamiq', 'Scala', 'Rapid', 'Enyaq', 'Enyaq Coupe', 'Yeti', 'Roomster', 'Citigo', 'Octavia RS', 'Superb Scout', 'Kodiaq RS', 'Kamiq Monte Carlo', 'Scala Monte Carlo', 'Octavia Monte Carlo', 'Enyaq RS']},
+            {'name': 'Opel', 'models': ['Astra', 'Corsa', 'Insignia', 'Mokka', 'Crossland', 'Grandland', 'Zafira', 'Vivaro', 'Combo', 'Movano', 'Astra GTC', 'Astra OPC', 'Corsa OPC', 'Insignia OPC', 'Mokka-e', 'Combo-e', 'Zafira-e Life', 'Grandland X Hybrid', 'Corsa-e', 'Astra Electric']},
+            {'name': 'Seat', 'models': ['Leon', 'Arona', 'Ateca', 'Tarraco', 'Ibiza', 'Alhambra', 'Leon Cupra', 'Leon ST', 'Leon FR', 'Ateca FR', 'Tarraco XPERIENCE', 'Ibiza FR', 'Alhambra XPERIENCE', 'Leon e-Hybrid', 'Arona e-Hybrid', 'Cupra Formentor', 'Cupra Leon', 'Cupra Ateca', 'Cupra Born']},
+            {'name': 'Suzuki', 'models': ['Vitara', 'SX4', 'Jimny', 'Swift', 'Baleno', 'Ciaz', 'Ertiga', 'Ignis', 'S-Cross', 'Across', 'Vitara S', 'Swift Sport', 'Jimny Sierra', 'Carry', 'APV', 'Liana', 'Grand Vitara', 'XL7', 'Escudo', 'Kizashi']},
+            {'name': 'Daewoo', 'models': ['Lanos', 'Nubira', 'Leganza', 'Matiz', 'Tacuma', 'Evanda', 'Gentra', 'Kalos', 'Lacetti', 'Malibu', 'Optra', 'Sonic', 'Spark', 'Trax', 'Volt', 'Essentix', 'Tosca', 'Winstorm', 'Captiva', 'Equinox']},
+            {'name': 'SsangYong', 'models': ['Tivoli', 'XLV', 'Korando', 'Rexton', 'Actyon', 'Stavic', 'Rodius', 'Kyron', 'Rexton Sports', 'Musso', 'Musso Grand', 'Tivoli Air', 'Torres', 'Torres EVX', 'Rexton EV', 'Chairman', 'Family', 'SsangYong e-SUV', 'Korando e-Motion']},
+            {'name': 'Chevrolet', 'models': ['Cruze', 'Malibu', 'Impala', 'Camaro', 'Corvette', 'Tahoe', 'Suburban', 'Traverse', 'Equinox', 'Trax', 'Blazer', 'Colorado', 'Silverado', 'Sonic', 'Spark', 'Volt', 'Bolt', 'Express', 'Avalanche', 'TrailBlazer', 'Silverado ZR2']},
+            {'name': 'Jeep', 'models': ['Wrangler', 'Grand Cherokee', 'Cherokee', 'Compass', 'Renegade', 'Gladiator', 'Wagoneer', 'Grand Wagoneer', 'Compass 4xe', 'Wrangler 4xe', 'Grand Cherokee 4xe', 'Patriot', 'Liberty', 'Commander', 'Grand Cherokee SRT', 'Wrangler Unlimited', 'Cherokee Trailhawk', 'Compass Trailhawk', 'Renegade Trailhawk', 'Wrangler Rubicon']},
+            {'name': 'Land Rover', 'models': ['Range Rover', 'Range Rover Sport', 'Range Rover Velar', 'Range Rover Evoque', 'Discovery', 'Discovery Sport', 'Defender', 'Freelander', 'Series I', 'Series II', 'Series III', 'Range Rover Sport SVR', 'Range Rover SVR', 'Discovery HSE', 'Defender 90', 'Defender 110', 'Defender 130', 'Evoque Convertible']},
+            {'name': 'Tesla', 'models': ['Model S', 'Model 3', 'Model X', 'Model Y', 'Model S Plaid', 'Model X Plaid', 'Cybertruck', 'Roadster', 'Semi', 'Model 3 Long Range', 'Model 3 Performance', 'Model Y Long Range', 'Model Y Performance', 'Model Y Performance', 'Model X Long Range', 'Model S Long Range', 'Model S Performance', 'Cybertruck Tri-Motor', 'Cybertruck Dual-Motor']},
+        ]
+        
+        total_models = 0
+        for brand_data in brands_data:
+            brand, created = CarBrand.objects.get_or_create(name=brand_data['name'])
+            for model_name in brand_data['models']:
+                model, model_created = CarModel.objects.get_or_create(
+                    brand=brand,
+                    name=model_name,
+                    defaults={'year_start': 2015}
+                )
+                if model_created:
+                    total_models += 1
+        
+        self.stdout.write(self.style.SUCCESS(f'Added {total_models} new car models from {len(brands_data)} brands'))

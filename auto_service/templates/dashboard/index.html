@@ -149,6 +149,27 @@
                 {% endfor %}
             </div>
             {% endif %}
+
+            <!-- My Reviews -->
+            {% if my_reviews %}
+            <div class="space-y-3">
+                <h3 class="text-xl font-bold text-white">Мої відгуки</h3>
+                {% for review in my_reviews %}
+                <div class="cyber-card p-4 rounded-xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex gap-1">
+                            {% for i in "12345" %}
+                            <i data-lucide="star" class="w-3 h-3 {% if forloop.counter <= review.rating %}text-yellow-400 fill-current{% else %}text-gray-600{% endif %}"></i>
+                            {% endfor %}
+                        </div>
+                        <div class="text-xs text-gray-500">{{ review.created_at|date:"d.m.Y" }}</div>
+                    </div>
+                    <div class="font-semibold text-white mb-1">{{ review.title }}</div>
+                    <div class="text-xs text-gray-400">{{ review.comment|truncatechars:80 }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -178,12 +199,13 @@
                 <textarea name="comment" placeholder="Ваш відгук..." class="textarea textarea-bordered w-full bg-cyber-surface border-cyber-purple/30" required></textarea>
             </div>
             <div class="modal-action">
-                <form method="dialog">
-                    <button class="btn btn-ghost">Скасувати</button>
-                </form>
+                <button class="btn btn-ghost" onclick="document.getElementById('review-modal').close()">Скасувати</button>
                 <button type="submit" class="btn-cyber">Відправити</button>
             </div>
         </form>
     </div>
+    <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+    </form>
 </dialog>
 {% endblock %}
