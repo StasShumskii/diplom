@@ -68,6 +68,7 @@
         <div class="lg:col-span-2 space-y-8">
             <div class="flex justify-between items-end">
                 <h3 class="text-2xl font-black uppercase text-white">ОСТАННІ ОПЕРАЦІЇ</h3>
+                <span class="badge bg-yellow-500/20 text-yellow-400 border-0">{{ pending_bookings }} нових</span>
             </div>
             <div class="glass-panel rounded-[32px] border-cyber-purple/20 overflow-hidden">
                 <table class="table w-full border-separate border-spacing-y-2 px-8">
@@ -84,20 +85,41 @@
                         <tr class="glass-panel border-cyber-purple/10 hover:bg-cyber-purple/5 transition-all">
                             <td class="bg-transparent pl-8">
                                 <div class="font-black text-white">{{ booking.client.username }}</div>
-                                <div class="text-[10px] font-bold text-gray-500">{{ booking.car.model }}</div>
+                                <div class="text-[10px] font-bold text-gray-500">{{ booking.car.model.brand.name|default:'' }} {{ booking.car.model.name }} - {{ booking.car.license_plate }}</div>
                             </td>
                             <td class="bg-transparent text-xs font-bold opacity-60 text-gray-400">
                                 {{ booking.scheduled_at|date:"d.m.Y H:i" }}
                             </td>
                             <td class="bg-transparent text-center">
-                                <div class="badge bg-cyber-purple/20 border-cyber-purple/30 text-cyber-purple text-[8px] font-black uppercase p-3">
+                                <div class="badge {% if booking.status == 'PENDING' %}bg-yellow-500/20 text-yellow-400{% elif booking.status == 'CONFIRMED' %}bg-blue-500/20 text-blue-400{% elif booking.status == 'IN_PROGRESS' %}bg-purple-500/20 text-purple-400{% elif booking.status == 'DONE' %}bg-green-500/20 text-green-400{% else %}bg-red-500/20 text-red-400{% endif %} border-0 text-[8px] font-black uppercase p-3">
                                     {{ booking.get_status_display }}
                                 </div>
                             </td>
                             <td class="bg-transparent text-right pr-8">
-                                <a href="{% url 'reports:booking_report' booking.id %}" target="_blank" class="btn btn-ghost btn-circle btn-sm text-cyber-cyan">
-                                    <i data-lucide="external-link" class="w-4 h-4"></i>
-                                </a>
+                                <div class="flex justify-end gap-1">
+                                    {% if booking.status == 'PENDING' %}
+                                    <button onclick="updateBookingStatus({{ booking.id }}, 'CONFIRMED')" class="btn btn-sm btn-ghost text-green-400" title="Підтвердити">
+                                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="updateBookingStatus({{ booking.id }}, 'CANCELLED')" class="btn btn-sm btn-ghost text-red-400" title="Скасувати">
+                                        <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                    </button>
+                                    {% elif booking.status == 'CONFIRMED' %}
+                                    <button onclick="updateBookingStatus({{ booking.id }}, 'IN_PROGRESS')" class="btn btn-sm btn-ghost text-purple-400" title="Почати роботу">
+                                        <i data-lucide="play-circle" class="w-4 h-4"></i>
+                                    </button>
+                                    <button onclick="updateBookingStatus({{ booking.id }}, 'CANCELLED')" class="btn btn-sm btn-ghost text-red-400" title="Скасувати">
+                                        <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                    </button>
+                                    {% elif booking.status == 'IN_PROGRESS' %}
+                                    <button onclick="updateBookingStatus({{ booking.id }}, 'DONE')" class="btn btn-sm btn-ghost text-green-400" title="Завершити">
+                                        <i data-lucide="check-check" class="w-4 h-4"></i>
+                                    </button>
+                                    {% endif %}
+                                    <a href="{% url 'reports:booking_report' booking.id %}" target="_blank" class="btn btn-sm btn-ghost text-cyber-cyan" title="Деталі">
+                                        <i data-lucide="external-link" class="w-4 h-4"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -240,5 +262,44 @@
         var chart = new ApexCharts(document.querySelector("#revenueChart"), options);
         chart.render();
     });
+
+    function updateBookingStatus(bookingId, newStatus) {
+        if (!confirm('Підтвердіть зміну статусу?')) return;
+        
+        var formData = new FormData();
+        formData.append('status', newStatus);
+        
+        var url = '/booking-status/' + bookingId + '/';
+        console.log('Updating booking:', url);
+        
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) { 
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error('HTTP error: ' + response.status);
+            }
+            return response.json(); 
+        })
+        .then(function(data) {
+            console.log('Response data:', data);
+            if (data.status === 'success') {
+                location.reload();
+            } else {
+                alert(data.message || 'Помилка');
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+            alert('Помилка: ' + error.message + '. Перевірте консоль.');
+        });
+    }
 </script>
 {% endblock %}

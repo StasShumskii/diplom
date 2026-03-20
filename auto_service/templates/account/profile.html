@@ -33,20 +33,20 @@
 
     <!-- Tabs Navigation -->
     <div class="glass-panel rounded-[32px] p-2">
-        <div class="flex flex-wrap gap-2" role="tablist">
-            <button class="tab-btn flex-1 btn-cyber px-4 py-3 rounded-xl justify-center" onclick="showTab('cars')" role="tab" aria-selected="true" id="tab-btn-cars">
+        <div class="flex flex-wrap gap-2">
+            <button class="tab-btn flex-1 btn-cyber px-4 py-3 rounded-xl justify-center" onclick="showTab('cars')" id="tab-btn-cars">
                 <i data-lucide="car" class="w-5 h-5 mr-2"></i>Мої авто
                 <span class="ml-2 badge badge-sm bg-white/20">{{ cars.count|default:"0" }}</span>
             </button>
-            <button class="tab-btn flex-1 btn btn-outline border-cyber-purple/30 px-4 py-3 rounded-xl justify-center" onclick="showTab('bookings')" role="tab" id="tab-btn-bookings">
+            <button class="tab-btn flex-1 btn btn-outline border-cyber-purple/30 px-4 py-3 rounded-xl justify-center" onclick="showTab('bookings')" id="tab-btn-bookings">
                 <i data-lucide="calendar-check" class="w-5 h-5 mr-2"></i>Записи
                 <span class="ml-2 badge badge-sm bg-cyber-purple/20">{{ bookings.count|default:"0" }}</span>
             </button>
-            <button class="tab-btn flex-1 btn btn-outline border-cyber-purple/30 px-4 py-3 rounded-xl justify-center" onclick="showTab('bonus')" role="tab" id="tab-btn-bonus">
+            <button class="tab-btn flex-1 btn btn-outline border-cyber-purple/30 px-4 py-3 rounded-xl justify-center" onclick="showTab('bonus')" id="tab-btn-bonus">
                 <i data-lucide="gift" class="w-5 h-5 mr-2"></i>Бонуси
                 <span class="ml-2 badge badge-sm bg-yellow-500/20 text-yellow-400">{{ bonus_account.points|default:"0" }}</span>
             </button>
-            <button class="tab-btn flex-1 btn btn-outline border-cyber-purple/30 px-4 py-3 rounded-xl justify-center" onclick="showTab('settings')" role="tab" id="tab-btn-settings">
+            <button class="tab-btn flex-1 btn btn-outline border-cyber-purple/30 px-4 py-3 rounded-xl justify-center" onclick="showTab('settings')" id="tab-btn-settings">
                 <i data-lucide="settings" class="w-5 h-5 mr-2"></i>Налаштування
             </button>
         </div>
@@ -56,7 +56,7 @@
     <div class="glass-panel rounded-[32px] p-6">
         
         <!-- MY CARS TAB -->
-        <div id="tab-cars" class="tab-content">
+        <div id="tab-cars" class="tab-content" style="display: block;">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold text-white">Мій гараж</h3>
                 <button class="btn-cyber px-4 py-2 rounded-xl" onclick="document.getElementById('add-car-modal').showModal()">
@@ -73,7 +73,7 @@
                             <i data-lucide="car" class="w-7 h-7 text-cyber-purple"></i>
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="font-bold text-white text-lg">{{ car.model.brand.name }} {{ car.model.name }}</div>
+                            <div class="font-bold text-white text-lg">{% if car.model.brand %}{{ car.model.brand.name }} {% endif %}{{ car.model.name }}</div>
                             <div class="flex flex-wrap gap-3 text-sm text-gray-400 mt-1">
                                 <span><i data-lucide="license" class="w-3 h-3 inline mr-1"></i>{{ car.license_plate }}</span>
                                 <span><i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i>{{ car.year }}</span>
@@ -84,12 +84,12 @@
                             {% if car.fuel_type %}
                             <span class="badge bg-cyber-cyan/20 text-cyber-cyan text-xs">{{ car.get_fuel_type_display }}</span>
                             {% endif %}
-                            <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 transition-transform car-chevron-{{ car.id }}"></i>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500"></i>
                         </div>
                     </div>
                     
                     <!-- Hidden Details -->
-                    <div id="car-details-{{ car.id }}" class="hidden mt-4 pt-4 border-t border-cyber-purple/20">
+                    <div id="car-details-{{ car.id }}" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(139, 92, 246, 0.2);">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
                                 <div class="text-xs text-gray-500 uppercase">VIN</div>
@@ -97,7 +97,7 @@
                             </div>
                             <div>
                                 <div class="text-xs text-gray-500 uppercase">Двигун</div>
-                                <div class="text-white text-sm">{{ car.engine_volume|default:"—" }} л {% if car.engine_type %}({{ car.get_engine_type_display }}){% endif %}</div>
+                                <div class="text-white text-sm">{{ car.engine_volume|default:"—" }} л</div>
                             </div>
                             <div>
                                 <div class="text-xs text-gray-500 uppercase">Тех. стан</div>
@@ -108,21 +108,10 @@
                                     {% else %}<span class="text-red-400">Критичний</span>{% endif %}
                                 </div>
                             </div>
-                            <div class="flex gap-2">
-                                <button class="btn btn-sm btn-outline border-cyber-purple/30 flex-1">
-                                    <i data-lucide="edit-2" class="w-3 h-3 mr-1"></i>Редагувати
-                                </button>
-                                <button class="btn btn-sm btn-outline border-red-500/30 text-red-400">
-                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
-                                </button>
-                            </div>
                         </div>
                         <div class="mt-4 flex gap-3">
                             <a href="{% url 'bookings:create' %}?car={{ car.id }}" class="btn btn-sm btn-cyber flex-1">
                                 <i data-lucide="calendar-plus" class="w-3 h-3 mr-2"></i>Записатись на ТО
-                            </a>
-                            <a href="{% url 'dashboard:service_history' %}" class="btn btn-sm btn-outline border-cyber-purple/30">
-                                <i data-lucide="history" class="w-3 h-3 mr-2"></i>Історія ТО
                             </a>
                         </div>
                     </div>
@@ -144,7 +133,7 @@
         </div>
 
         <!-- BOOKINGS TAB -->
-        <div id="tab-bookings" class="tab-content hidden">
+        <div id="tab-bookings" class="tab-content" style="display: none;">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold text-white">Мої записи</h3>
                 <a href="{% url 'bookings:create' %}" class="btn-cyber px-4 py-2 rounded-xl">
@@ -162,7 +151,7 @@
                                 <i data-lucide="calendar-check" class="w-6 h-6 {% if booking.status == 'PENDING' %}text-yellow-500{% elif booking.status == 'CONFIRMED' %}text-blue-500{% elif booking.status == 'IN_PROGRESS' %}text-purple-500{% elif booking.status == 'DONE' %}text-green-500{% else %}text-red-500{% endif %}"></i>
                             </div>
                             <div>
-                                <div class="font-bold text-white">{{ booking.car.model.brand.name }} {{ booking.car.model.name }}</div>
+                                <div class="font-bold text-white">{% if booking.car.model.brand %}{{ booking.car.model.brand.name }} {% endif %}{{ booking.car.model.name }}</div>
                                 <div class="text-sm text-gray-400">
                                     <i data-lucide="calendar" class="w-3 h-3 inline mr-1"></i>
                                     {{ booking.scheduled_at|date:"d.m.Y" }}
@@ -179,16 +168,16 @@
                                 </span>
                                 <div class="text-cyber-cyan font-bold mt-1">{{ booking.total_cost }} ₴</div>
                             </div>
-                            <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500 transition-transform booking-chevron-{{ booking.id }}"></i>
+                            <i data-lucide="chevron-down" class="w-5 h-5 text-gray-500"></i>
                         </div>
                     </div>
                     
                     <!-- Hidden Details -->
-                    <div id="booking-details-{{ booking.id }}" class="hidden mt-4 pt-4 border-t border-cyber-purple/20">
+                    <div id="booking-details-{{ booking.id }}" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(139, 92, 246, 0.2);">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                             <div>
                                 <div class="text-xs text-gray-500 uppercase">Автомобіль</div>
-                                <div class="text-white">{{ booking.car.model.brand.name }} {{ booking.car.model.name }}</div>
+                                <div class="text-white">{% if booking.car.model.brand %}{{ booking.car.model.brand.name }} {% endif %}{{ booking.car.model.name }}</div>
                             </div>
                             <div>
                                 <div class="text-xs text-gray-500 uppercase">Держ. номер</div>
@@ -211,13 +200,13 @@
                         {% endif %}
                         <div class="flex gap-3">
                             {% if booking.status == 'PENDING' %}
-                            <button class="btn btn-sm btn-outline border-red-500/30 text-red-400 hover:bg-red-500/20">
+                            <button onclick="cancelBooking({{ booking.id }})" class="btn btn-sm btn-outline border-red-500/30 text-red-400 hover:bg-red-500/20">
                                 <i data-lucide="x-circle" class="w-3 h-3 mr-2"></i>Скасувати
                             </button>
                             {% endif %}
-                            <button class="btn btn-sm btn-outline border-cyber-purple/30">
+                            <a href="{% url 'reports:booking_report' booking.id %}" target="_blank" class="btn btn-sm btn-outline border-cyber-purple/30">
                                 <i data-lucide="file-text" class="w-3 h-3 mr-2"></i>Деталі
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -238,92 +227,29 @@
         </div>
 
         <!-- BONUS TAB -->
-        <div id="tab-bonus" class="tab-content hidden">
+        <div id="tab-bonus" class="tab-content" style="display: none;">
             <div class="grid md:grid-cols-3 gap-6 mb-8">
-                <!-- Balance Card -->
                 <div class="cyber-card p-6 rounded-xl bg-gradient-to-r from-cyber-purple/20 to-cyber-cyan/20">
                     <div class="text-gray-400 text-sm mb-2">Баланс</div>
                     <div class="text-5xl font-black gradient-text">{{ bonus_account.points|default:"0" }}</div>
                     <div class="text-gray-400 text-sm mt-2">балів</div>
                 </div>
                 
-                <!-- Level Card -->
                 <div class="cyber-card p-6 rounded-xl">
                     <div class="text-gray-400 text-sm mb-2">Рівень</div>
-                    <div class="flex items-center gap-4">
-                        <div class="text-5xl font-black gradient-text">{{ bonus_account.level|default:"1" }}</div>
-                        <div class="text-sm">
-                            <div class="text-gray-400">Наступний:</div>
-                            <div class="text-white font-bold">{{ bonus_account.total_earned|default:"0" }}/{% widthratio bonus_account.level|add:1 1 5000 %} ₴</div>
-                        </div>
-                    </div>
-                    <div class="w-full bg-cyber-surface h-2 rounded-full mt-4 overflow-hidden">
-                        <div class="bg-gradient-to-r from-cyber-purple to-cyber-cyan h-full" style="width: {% widthratio bonus_account.total_earned|default:0 5000 100 %}%"></div>
-                    </div>
+                    <div class="text-5xl font-black gradient-text">{{ bonus_account.level|default:"1" }}</div>
                 </div>
                 
-                <!-- Actions Card -->
                 <div class="cyber-card p-6 rounded-xl flex flex-col justify-center gap-3">
-                    <button class="btn-cyber w-full" onclick="document.getElementById('spend-bonus-modal').showModal()">
-                        <i data-lucide="gift" class="w-4 h-4 mr-2"></i>Витратити бали
-                    </button>
-                    <a href="{% url 'dashboard:bonus' %}" class="btn btn-outline border-cyber-purple/30 w-full">
-                        <i data-lucide="history" class="w-4 h-4 mr-2"></i>Історія
+                    <a href="{% url 'dashboard:bonus' %}" class="btn-cyber w-full">
+                        <i data-lucide="gift" class="w-4 h-4 mr-2"></i>Управління бонусами
                     </a>
-                </div>
-            </div>
-            
-            <!-- How to Earn -->
-            <div class="cyber-card p-6 rounded-xl mb-6">
-                <h4 class="font-bold text-white mb-4 flex items-center gap-2">
-                    <i data-lucide="trending-up" class="w-5 h-5 text-cyber-cyan"></i>
-                    Як заробити бали
-                </h4>
-                <div class="grid md:grid-cols-3 gap-4">
-                    <div class="bg-cyber-surface p-4 rounded-lg text-center">
-                        <div class="text-cyber-cyan font-bold text-2xl">+10%</div>
-                        <div class="text-gray-400 text-sm mt-1">від суми замовлення</div>
-                    </div>
-                    <div class="bg-cyber-surface p-4 rounded-lg text-center">
-                        <div class="text-cyber-cyan font-bold text-2xl">+100</div>
-                        <div class="text-gray-400 text-sm mt-1">за відгук</div>
-                    </div>
-                    <div class="bg-cyber-surface p-4 rounded-lg text-center">
-                        <div class="text-cyber-cyan font-bold text-2xl">+50</div>
-                        <div class="text-gray-400 text-sm mt-1">за запрошеного друга</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Recent Transactions -->
-            <div>
-                <h4 class="font-bold text-white mb-4">Останні транзакції</h4>
-                <div class="space-y-2">
-                    {% for transaction in bonus_transactions|slice:":5" %}
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-cyber-surface">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full {% if transaction.transaction_type == 'EARN' %}bg-green-500/20{% else %}bg-red-500/20{% endif %} flex items-center justify-center">
-                                <i data-lucide="{% if transaction.transaction_type == 'EARN' %}arrow-down-left{% else %}arrow-up-right{% endif %}" class="w-4 h-4 {% if transaction.transaction_type == 'EARN' %}text-green-400{% else %}text-red-400{% endif %}"></i>
-                            </div>
-                            <div>
-                                <div class="text-white text-sm">{{ transaction.description|default:"Транзакція" }}</div>
-                                <div class="text-xs text-gray-500">{{ transaction.created_at|date:"d.m.Y H:i" }}</div>
-                            </div>
-                        </div>
-                        <div class="font-bold {% if transaction.transaction_type == 'EARN' %}text-green-400{% else %}text-red-400{% endif %}">
-                            {% if transaction.transaction_type == 'EARN' %}+{% else %}-{% endif %}{{ transaction.points }}
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="text-center py-6 text-gray-500">Транзакцій поки немає</div>
-                    {% endfor %}
                 </div>
             </div>
         </div>
 
         <!-- SETTINGS TAB -->
-        <div id="tab-settings" class="tab-content hidden">
-            <!-- Profile Settings -->
+        <div id="tab-settings" class="tab-content" style="display: none;">
             <div class="cyber-card p-6 rounded-xl mb-6">
                 <h4 class="font-bold text-white mb-4 flex items-center gap-2">
                     <i data-lucide="user" class="w-5 h-5 text-cyber-purple"></i>
@@ -358,66 +284,6 @@
                 </form>
             </div>
             
-            <!-- Notification Settings -->
-            <div class="cyber-card p-6 rounded-xl mb-6">
-                <h4 class="font-bold text-white mb-4 flex items-center gap-2">
-                    <i data-lucide="bell" class="w-5 h-5 text-cyber-cyan"></i>
-                    Сповіщення
-                </h4>
-                <div class="space-y-3">
-                    <label class="flex items-center justify-between p-3 rounded-lg bg-cyber-surface cursor-pointer hover:bg-cyber-purple/10 transition">
-                        <div>
-                            <div class="text-white font-medium">Email сповіщення</div>
-                            <div class="text-xs text-gray-500">Отримувати сповіщення на пошту</div>
-                        </div>
-                        <input type="checkbox" class="toggle toggle-primary" checked>
-                    </label>
-                    <label class="flex items-center justify-between p-3 rounded-lg bg-cyber-surface cursor-pointer hover:bg-cyber-purple/10 transition">
-                        <div>
-                            <div class="text-white font-medium">Нагадування про ТО</div>
-                            <div class="text-xs text-gray-500">Отримувати нагадування про технічне обслуговування</div>
-                        </div>
-                        <input type="checkbox" class="toggle toggle-primary" checked>
-                    </label>
-                    <label class="flex items-center justify-between p-3 rounded-lg bg-cyber-surface cursor-pointer hover:bg-cyber-purple/10 transition">
-                        <div>
-                            <div class="text-white font-medium">Рекламні розсилки</div>
-                            <div class="text-xs text-gray-500">Отримувати акції та спецпропозиції</div>
-                        </div>
-                        <input type="checkbox" class="toggle toggle-primary">
-                    </label>
-                </div>
-            </div>
-            
-            <!-- Security Settings -->
-            <div class="cyber-card p-6 rounded-xl mb-6">
-                <h4 class="font-bold text-white mb-4 flex items-center gap-2">
-                    <i data-lucide="shield" class="w-5 h-5 text-cyber-pink"></i>
-                    Безпека
-                </h4>
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between p-4 rounded-lg bg-cyber-surface">
-                        <div>
-                            <div class="text-white font-medium">Пароль</div>
-                            <div class="text-xs text-gray-500">Остання зміна: {{ user.last_login|date:'d.m.Y' }}</div>
-                        </div>
-                        <a href="{% url 'account_change_password' %}" class="btn btn-sm btn-outline border-cyber-purple/30">
-                            <i data-lucide="key" class="w-3 h-3 mr-2"></i>Змінити
-                        </a>
-                    </div>
-                    <div class="flex items-center justify-between p-4 rounded-lg bg-cyber-surface">
-                        <div>
-                            <div class="text-white font-medium">Двофакторна аутентифікація</div>
-                            <div class="text-xs text-gray-500">Додатковий захист акаунту</div>
-                        </div>
-                        <button class="btn btn-sm btn-outline border-cyber-purple/30">
-                            <i data-lucide="shield-check" class="w-3 h-3 mr-2"></i>Налаштувати
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Danger Zone -->
             <div class="cyber-card p-6 rounded-xl border border-red-500/30">
                 <h4 class="font-bold text-red-400 mb-4 flex items-center gap-2">
                     <i data-lucide="alert-triangle" class="w-5 h-5"></i>
@@ -447,7 +313,7 @@
                 <label class="block text-sm font-medium text-gray-300 mb-2">Марка</label>
                 <select name="brand" id="car-brand-select-profile" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30" hx-get="{% url 'cars:api_models' %}" hx-target="#car-model-profile" onchange="updateCarPreviewProfile()">
                     <option value="">Оберіть марку</option>
-                    {% for brand in brands|default:"[]" %}
+                    {% for brand in brands %}
                         <option value="{{ brand.id }}">{{ brand.name }}</option>
                     {% endfor %}
                 </select>
@@ -499,27 +365,16 @@
                         <option value="LPG">Газ/Газ-бензин</option>
                         <option value="ELECTRIC">Електро</option>
                         <option value="HYBRID">Гібрид</option>
-                        <option value="CNG">Метан</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-2">Тип двигуна</label>
-                    <select name="engine_type" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30">
-                        <option value="">Оберіть тип двигуна</option>
-                        <option value="NATURAL">Атмосферний</option>
-                        <option value="TURBO">Турбований</option>
-                        <option value="SUPERCHARGE">Наддувний</option>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Технічний стан</label>
+                    <select name="technical_condition" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                        <option value="GOOD">Добрий</option>
+                        <option value="EXCELLENT">Відмінний</option>
+                        <option value="NEEDS_REPAIR">Потребує ремонту</option>
                     </select>
                 </div>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Технічний стан</label>
-                <select name="technical_condition" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30">
-                    <option value="GOOD">Добрий</option>
-                    <option value="EXCELLENT">Відмінний</option>
-                    <option value="NEEDS_REPAIR">Потребує ремонту</option>
-                    <option value="CRITICAL">Критичний</option>
-                </select>
             </div>
             <div class="modal-action justify-center">
                 <button type="button" class="btn btn-ghost" onclick="document.getElementById('add-car-modal').close()">Скасувати</button>
@@ -529,102 +384,95 @@
     </div>
 </dialog>
 
-<!-- Spend Bonus Modal -->
-<dialog id="spend-bonus-modal" class="modal">
-    <div class="modal-box cyber-card max-w-md">
-        <h3 class="font-bold text-2xl mb-6 text-white text-center">Витратити бали</h3>
-        <div class="text-center mb-6">
-            <div class="text-gray-400 text-sm">Доступно</div>
-            <div class="text-4xl font-bold gradient-text">{{ bonus_account.points|default:"0" }}</div>
-            <div class="text-gray-400 text-sm">балів</div>
-        </div>
-        <form method="post" action="{% url 'dashboard:spend_bonus' %}" class="space-y-4">
-            {% csrf_token %}
-            <div>
-                <label class="block text-sm font-medium text-gray-300 mb-2">Кількість балів</label>
-                <input type="number" name="amount" max="{{ bonus_account.points|default:0 }}" class="input input-bordered w-full bg-cyber-surface border-cyber-purple/30 h-12 text-center text-lg" placeholder="100">
-            </div>
-            <div class="text-center text-sm text-gray-400">
-                1 бал = 1 ₴ знижки
-            </div>
-            <div class="modal-action justify-center">
-                <button type="button" class="btn btn-ghost" onclick="document.getElementById('spend-bonus-modal').close()">Скасувати</button>
-                <button type="submit" class="btn-cyber">Витратити</button>
-            </div>
-        </form>
-    </div>
-</dialog>
-
 <script>
 function showTab(tabName) {
-    console.log('showTab called:', tabName);
-    
     // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+    var contents = document.querySelectorAll('.tab-content');
+    for (var i = 0; i < contents.length; i++) {
+        contents[i].style.display = 'none';
+    }
     
     // Show selected tab
-    const targetTab = document.getElementById('tab-' + tabName);
-    console.log('targetTab:', targetTab);
-    
+    var targetTab = document.getElementById('tab-' + tabName);
     if (targetTab) {
-        targetTab.classList.remove('hidden');
+        targetTab.style.display = 'block';
     }
     
     // Update button styles
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('btn-cyber');
-        btn.classList.add('btn', 'btn-outline', 'border-cyber-purple/30');
-    });
+    var buttons = document.querySelectorAll('.tab-btn');
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].classList.remove('btn-cyber');
+        buttons[i].classList.add('btn', 'btn-outline', 'border-cyber-purple/30');
+    }
     
-    const activeBtn = document.getElementById('tab-btn-' + tabName);
+    var activeBtn = document.getElementById('tab-btn-' + tabName);
     if (activeBtn) {
         activeBtn.classList.remove('btn', 'btn-outline', 'border-cyber-purple/30');
         activeBtn.classList.add('btn-cyber');
     }
     
+    // Reinitialize icons
     if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
-    }
-}
-
-function toggleCarDetails(carId) {
-    console.log('toggleCarDetails called:', carId);
-    const details = document.getElementById('car-details-' + carId);
-    const chevron = document.querySelector('.car-chevron-' + carId);
-    
-    if (details) {
-        if (details.classList.contains('hidden')) {
-            details.classList.remove('hidden');
-            if (chevron) chevron.classList.add('rotate-180');
-        } else {
-            details.classList.add('hidden');
-            if (chevron) chevron.classList.remove('rotate-180');
-        }
+        setTimeout(function() { lucide.createIcons(); }, 50);
     }
 }
 
 function toggleBookingDetails(bookingId) {
-    console.log('toggleBookingDetails called:', bookingId);
-    const details = document.getElementById('booking-details-' + bookingId);
-    const chevron = document.querySelector('.booking-chevron-' + bookingId);
-    
+    var details = document.getElementById('booking-details-' + bookingId);
     if (details) {
-        if (details.classList.contains('hidden')) {
-            details.classList.remove('hidden');
-            if (chevron) chevron.classList.add('rotate-180');
+        if (details.style.display === 'none' || details.style.display === '') {
+            details.style.display = 'block';
         } else {
-            details.classList.add('hidden');
-            if (chevron) chevron.classList.remove('rotate-180');
+            details.style.display = 'none';
         }
     }
 }
 
+function toggleCarDetails(carId) {
+    var details = document.getElementById('car-details-' + carId);
+    if (details) {
+        if (details.style.display === 'none' || details.style.display === '') {
+            details.style.display = 'block';
+        } else {
+            details.style.display = 'none';
+        }
+    }
+}
+
+function cancelBooking(bookingId) {
+    if (!confirm('Ви впевнені, що хочете скасувати цей запис?')) return;
+    
+    var formData = new FormData();
+    formData.append('status', 'CANCELLED');
+    
+    fetch('/booking-status/' + bookingId + '/', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert(data.message || 'Помилка при скасуванні');
+        }
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+        alert('Помилка мережі: ' + error.message);
+    });
+}
+
 document.getElementById('settings-form')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    const form = this;
-    const formData = new FormData(form);
-    const btn = document.getElementById('save-settings-btn');
-    const msg = document.getElementById('settings-message');
+    var form = this;
+    var formData = new FormData(form);
+    var btn = document.getElementById('save-settings-btn');
+    var msg = document.getElementById('settings-message');
     
     btn.disabled = true;
     btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span>';
@@ -636,8 +484,8 @@ document.getElementById('settings-form')?.addEventListener('submit', function(e)
             'X-CSRFToken': formData.get('csrfmiddlewaretoken')
         }
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
         btn.disabled = false;
         btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i>Зберегти';
         
@@ -646,20 +494,20 @@ document.getElementById('settings-form')?.addEventListener('submit', function(e)
         } else {
             msg.innerHTML = '<i data-lucide="x-circle" class="w-4 h-4 text-red-400 mr-2"></i><span class="text-red-400">Помилка</span>';
         }
-        lucide.createIcons();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     })
-    .catch(error => {
+    .catch(function(error) {
         btn.disabled = false;
         btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 mr-2"></i>Зберегти';
         msg.innerHTML = '<i data-lucide="x-circle" class="w-4 h-4 text-red-400 mr-2"></i><span class="text-red-400">Помилка</span>';
-        lucide.createIcons();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 });
 
 document.getElementById('add-car-form-profile')?.addEventListener('submit', function(e) {
     e.preventDefault();
-    const form = this;
-    const formData = new FormData(form);
+    var form = this;
+    var formData = new FormData(form);
     
     fetch("{% url 'cars:add_car_ajax' %}", {
         method: 'POST',
@@ -668,8 +516,8 @@ document.getElementById('add-car-form-profile')?.addEventListener('submit', func
             'X-CSRFToken': formData.get('csrfmiddlewaretoken')
         }
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
         if (data.success) {
             document.getElementById('add-car-modal').close();
             location.reload();
@@ -677,13 +525,15 @@ document.getElementById('add-car-form-profile')?.addEventListener('submit', func
             alert(data.message || 'Помилка при додаванні автомобіля');
         }
     })
-    .catch(error => {
+    .catch(function(error) {
         alert('Помилка при додаванні автомобіля');
     });
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 });
 </script>
 {% endblock %}

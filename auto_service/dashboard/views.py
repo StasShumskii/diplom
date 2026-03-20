@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
 from bookings.models import Booking, ServiceHistory, BonusPoints, BonusTransaction
 from notifications.models import Review, ChatMessage, Reminder, Notification, UserProposal
@@ -57,12 +58,10 @@ def contacts_view(request):
 class MultiRoleDashboardView(LoginRequiredMixin, TemplateView):
     def get_template_names(self):
         role = self.request.user.role
-        if role == 'MANAGER':
+        if role == 'MANAGER' or role == 'ADMIN':
             return ['dashboard/manager.html']
         elif role == 'MECHANIC':
             return ['dashboard/mechanic.html']
-        elif role == 'ADMIN':
-            return ['dashboard/admin.html']
         return ['dashboard/index.html']
 
     def get_context_data(self, **kwargs):
@@ -83,11 +82,13 @@ class MultiRoleDashboardView(LoginRequiredMixin, TemplateView):
             context['total_bookings'] = Booking.objects.count()
             context['revenue'] = Booking.objects.filter(status='DONE').aggregate(Sum('total_cost'))['total_cost__sum'] or 0
             context['recent_bookings'] = Booking.objects.all().order_by('-created_at')[:10]
+            context['pending_bookings_list'] = Booking.objects.filter(status='PENDING').order_by('-created_at')[:15]
             context['pending_bookings'] = Booking.objects.filter(status='PENDING').count()
             context['all_reviews'] = Review.objects.all().order_by('-created_at')[:20]
             context['pending_reviews_count'] = Review.objects.filter(is_approved=False).count()
             context['proposals'] = UserProposal.objects.all().order_by('-created_at')[:20]
             context['proposals_count'] = UserProposal.objects.filter(is_read=False).count()
+            context['mechanics'] = User.objects.filter(role='MECHANIC', is_active=True)
             
             total_slots_today = 20
             booked_slots_today = Booking.objects.filter(
@@ -99,7 +100,9 @@ class MultiRoleDashboardView(LoginRequiredMixin, TemplateView):
             context['total_slots'] = total_slots_today
             
         elif user.role == 'MECHANIC':
+            context['pending_tasks'] = Booking.objects.filter(status='CONFIRMED').order_by('scheduled_at')[:10]
             context['active_tasks'] = Booking.objects.filter(mechanic=user, status='IN_PROGRESS')
+            context['completed_tasks'] = Booking.objects.filter(mechanic=user, status='DONE').order_by('-scheduled_at')[:10]
 
         context['now'] = datetime.now()
         return context
@@ -311,3 +314,163 @@ def toggle_user_status(request, user_id):
     
     status = 'активовано' if target_user.is_active else 'деактивовано'
     return JsonResponse({'status': 'success', 'message': f'Користувач {status}'})
+
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+@login_required
+@require_POST
+@csrf_exempt
+def update_booking_status(request, booking_id):
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        logger.info(f"User {request.user} role: {request.user.role}")
+        
+        if request.user.role not in ['MANAGER', 'ADMIN', 'MECHANIC']:
+            return JsonResponse({'status': 'error', 'message': 'Permission denied: ' + str(request.user.role)}, status=403)
+        
+        booking = get_object_or_404(Booking, id=booking_id)
+        new_status = request.POST.get('status', '')
+        
+        logger.info(f"Updating booking {booking_id} to status {new_status} by user {request.user}")
+        
+        valid_statuses = ['PENDING', 'CONFIRMED', 'IN_PROGRESS', 'DONE', 'CANCELLED']
+        if new_status not in valid_statuses:
+            return JsonResponse({'status': 'error', 'message': 'Invalid status'})
+        
+        booking.status = new_status
+        booking.save()
+        
+        status_names = {
+            'PENDING': 'Очікує',
+            'CONFIRMED': 'Підтверджено',
+            'IN_PROGRESS': 'В роботі',
+            'DONE': 'Виконано',
+            'CANCELLED': 'Скасовано'
+        }
+        
+        return JsonResponse({'status': 'success', 'message': f'Статус змінено на "{status_names.get(new_status, new_status)}"'})
+    except Exception as e:
+        logger.error(f"Error updating booking status: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+@login_required
+@require_POST
+def assign_mechanic(request, booking_id):
+    if request.user.role not in ['MANAGER', 'ADMIN']:
+        return JsonResponse({'status': 'error', 'message': 'Permission denied'}, status=403)
+    
+    booking = get_object_or_404(Booking, id=booking_id)
+    mechanic_id = request.POST.get('mechanic_id')
+    
+    if mechanic_id:
+        try:
+            mechanic = User.objects.get(id=mechanic_id, role='MECHANIC')
+            booking.mechanic = mechanic
+            booking.save()
+            return JsonResponse({'status': 'success', 'message': f'Механік {mechanic.username} призначений'})
+        except User.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Механіка не знайдено'})
+    
+    booking.mechanic = None
+    booking.save()
+    return JsonResponse({'status': 'success', 'message': 'Механік видалений'})
+
+
+@csrf_exempt
+def password_reset_view(request):
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    from django.contrib.auth import get_user_model
+    
+    User = get_user_model()
+    
+    if request.method == 'POST':
+        try:
+            email = request.POST.get('email', '').strip()
+            new_password1 = request.POST.get('new_password1', '')
+            new_password2 = request.POST.get('new_password2', '')
+            
+            logger.info(f"Password reset POST for: {email}")
+            
+            if not email or not new_password1 or not new_password2:
+                return render(request, 'account/password_reset_form.html', {'error': 'Заповніть всі поля'})
+            
+            if new_password1 != new_password2:
+                return render(request, 'account/password_reset_form.html', {'error': 'Паролі не співпадають'})
+            
+            if len(new_password1) < 8:
+                return render(request, 'account/password_reset_form.html', {'error': 'Пароль повинен бути мінімум 8 символів'})
+            
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return render(request, 'account/password_reset_form.html', {'error': 'Користувач з таким email не знайдено'})
+            
+            user.set_password(new_password1)
+            user.save()
+            
+            logger.info(f"Password changed for: {email}")
+            
+            from django.contrib.auth import login
+            from django.contrib.auth.backends import ModelBackend
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            login(request, user)
+            
+            logger.info(f"User logged in: {email}")
+            
+            from django.http import HttpResponseRedirect
+            return HttpResponseRedirect('/profile/')
+            
+        except Exception as e:
+            logger.error(f"Password reset error: {str(e)}")
+            return render(request, 'account/password_reset_form.html', {'error': f'Помилка: {str(e)}'})
+    
+    return render(request, 'account/password_reset_form.html')
+
+
+@require_POST
+def quick_password_reset(request):
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    from django.contrib.auth import get_user_model
+    
+    User = get_user_model()
+    
+    try:
+        email = request.POST.get('email', '').strip()
+        new_password1 = request.POST.get('new_password1', '')
+        new_password2 = request.POST.get('new_password2', '')
+        
+        logger.info(f"Password reset attempt for email: {email}")
+        
+        if not email or not new_password1 or not new_password2:
+            return JsonResponse({'success': False, 'message': 'Заповніть всі поля'})
+        
+        if new_password1 != new_password2:
+            return JsonResponse({'success': False, 'message': 'Паролі не співпадають'})
+        
+        if len(new_password1) < 8:
+            return JsonResponse({'success': False, 'message': 'Пароль повинен бути мінімум 8 символів'})
+        
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Користувач з таким email не знайдено'})
+        
+        user.set_password(new_password1)
+        user.save()
+        
+        from django.contrib.auth import login
+        login(request, user)
+        
+        logger.info(f"Password changed successfully for user: {email}")
+        
+        return JsonResponse({'success': True, 'message': 'Пароль змінено'})
+    except Exception as e:
+        logger.error(f"Password reset error: {str(e)}")
+        return JsonResponse({'success': False, 'message': f'Помилка: {str(e)}'})
