@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from datetime import datetime
 from .models import Booking
 from cars.models import UserCar
+from services.models import Service
 
 @login_required
 def booking_list(request):
@@ -14,6 +15,31 @@ def booking_list(request):
 def booking_create(request):
     today = datetime.now().strftime('%Y-%m-%d')
     hours_list = ['08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18']
+    
+    service_id = request.GET.get('service')
+    selected_service = None
+    service_filter = None
+    
+    if service_id:
+        try:
+            selected_service = Service.objects.get(id=service_id)
+            service_filter = selected_service.name
+        except Service.DoesNotExist:
+            pass
+    
+    booked_dates = []
+    bookings_query = Booking.objects.all()
+    if service_filter:
+        bookings_query = bookings_query.filter(service_type=service_filter)
+    
+    for booking in bookings_query:
+        booked_dates.append({
+            'date': booking.scheduled_at.strftime('%Y-%m-%d'),
+            'hour': booking.scheduled_at.strftime('%H'),
+            'status': booking.status
+        })
+    
+    booked_dates_json = str(booked_dates).replace("'", '"')
     
     if request.method == 'POST':
         car_id = request.POST.get('car')
@@ -26,6 +52,8 @@ def booking_create(request):
                 'cars': UserCar.objects.filter(user=request.user),
                 'hours_list': hours_list,
                 'today': today,
+                'booked_dates_json': booked_dates_json,
+                'selected_service': selected_service,
                 'error': 'Виберіть автомобіль'
             })
         
@@ -36,6 +64,8 @@ def booking_create(request):
                 'cars': UserCar.objects.filter(user=request.user),
                 'hours_list': hours_list,
                 'today': today,
+                'booked_dates_json': booked_dates_json,
+                'selected_service': selected_service,
                 'error': 'Автомобіль не знайдено'
             })
         
@@ -52,10 +82,13 @@ def booking_create(request):
             from django.utils import timezone
             scheduled_at = timezone.now()
         
+        service_type = request.POST.get('service_type', '')
+        
         booking = Booking.objects.create(
             client=request.user,
             car=car,
             scheduled_at=scheduled_at,
+            service_type=service_type,
             notes=notes,
             status='PENDING'
         )
@@ -66,5 +99,7 @@ def booking_create(request):
     return render(request, 'bookings/create.html', {
         'cars': cars,
         'hours_list': hours_list,
-        'today': today
+        'today': today,
+        'booked_dates_json': booked_dates_json,
+        'selected_service': selected_service
     })

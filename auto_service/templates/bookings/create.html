@@ -24,7 +24,11 @@
     <!-- Header -->
     <div class="glass-panel rounded-[32px] p-6">
         <h1 class="text-3xl font-bold text-white">ЗАПИС НА ТО</h1>
+        {% if selected_service %}
+        <p class="text-cyber-cyan mt-2">Послуга: <span class="font-semibold">{{ selected_service.name }}</span> ({{ selected_service.base_price }} ₴)</p>
+        {% else %}
         <p class="text-gray-400 mt-2">Оберіть зручний час та дату для вашого автомобіля</p>
+        {% endif %}
     </div>
 
     {% if not cars %}
@@ -92,6 +96,9 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Послуга</label>
                         <select name="service_type" class="select select-bordered w-full bg-cyber-surface border-cyber-purple/30">
+                            {% if selected_service %}
+                            <option value="{{ selected_service.name }}" selected>{{ selected_service.name }}</option>
+                            {% else %}
                             <option value="">Загальна консультація</option>
                             <option value="Діагностика">Діагностика</option>
                             <option value="ТО-1">ТО-1</option>
@@ -102,6 +109,7 @@
                             <option value="Електрика">Електрика</option>
                             <option value="Кузов">Кузов</option>
                             <option value="Інше">Інше</option>
+                            {% endif %}
                         </select>
                     </div>
 
@@ -124,8 +132,20 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    var bookedData = {{ booked_dates_json|safe }};
+    
     var calendarEl = document.getElementById('calendar');
     if (calendarEl) {
+        var events = [];
+        bookedData.forEach(function(booking) {
+            events.push({
+                title: 'Зайнято',
+                start: booking.date + 'T' + booking.hour + ':00:00',
+                display: 'background',
+                backgroundColor: 'rgba(239, 68, 68, 0.3)'
+            });
+        });
+        
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'uk',
@@ -139,18 +159,53 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             select: function(info) {
                 document.getElementById('id_scheduled_at').value = info.startStr;
-            }
+            },
+            events: events
         });
         calendar.render();
     }
     
+    var bookedHoursByDate = {};
+    bookedData.forEach(function(booking) {
+        if (!bookedHoursByDate[booking.date]) {
+            bookedHoursByDate[booking.date] = [];
+        }
+        bookedHoursByDate[booking.date].push(booking.hour);
+    });
+    
     // Time slot selection
     document.querySelectorAll('.time-slot').forEach(slot => {
         slot.addEventListener('click', function() {
-            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+            var selectedDate = document.getElementById('id_scheduled_at').value;
+            var hour = this.dataset.hour;
+            
+            if (selectedDate && bookedHoursByDate[selectedDate] && bookedHoursByDate[selectedDate].includes(hour)) {
+                return;
+            }
+            
+            document.querySelectorAll('.time-slot').forEach(s => {
+                s.classList.remove('selected');
+                s.disabled = false;
+            });
             this.classList.add('selected');
             document.getElementById('selected_time').value = this.dataset.hour;
             document.getElementById('id_scheduled_time').value = this.dataset.hour + ':00';
+        });
+    });
+    
+    document.getElementById('id_scheduled_at').addEventListener('change', function() {
+        var selectedDate = this.value;
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            var hour = slot.dataset.hour;
+            if (selectedDate && bookedHoursByDate[selectedDate] && bookedHoursByDate[selectedDate].includes(hour)) {
+                slot.disabled = true;
+                slot.classList.add('opacity-50', 'cursor-not-allowed');
+                slot.style.textDecoration = 'line-through';
+            } else {
+                slot.disabled = false;
+                slot.classList.remove('opacity-50', 'cursor-not-allowed');
+                slot.style.textDecoration = 'none';
+            }
         });
     });
 });

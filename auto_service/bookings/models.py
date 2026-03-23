@@ -23,9 +23,10 @@ class Booking(models.Model):
         related_name='assigned_tasks'
     )
     scheduled_at = models.DateTimeField(verbose_name=_('Заплановано на'))
+    service_type = models.CharField(max_length=200, blank=True, verbose_name=_('Тип послуги'))
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING, verbose_name=_('Статус'))
     total_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name=_('Загальна вартість'))
-    notes = models.TextField(blank=True, verbose_name=_('Примітки'))
+    notes = models.TextField(blank=True, verbose_name=_('Примечания'))
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
