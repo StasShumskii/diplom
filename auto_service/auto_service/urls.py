@@ -5,20 +5,22 @@ from django.conf.urls.static import static
 from django.views.generic import RedirectView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    
+    path("admin/", admin.site.urls),
     # Auth
-    path('accounts/', include('allauth.urls')),
-    path('accounts/profile/', RedirectView.as_view(url='/profile/', permanent=False), name='account_profile'),
-    
+    path("accounts/", include("allauth.urls")),
+    path(
+        "accounts/profile/",
+        RedirectView.as_view(url="/profile/", permanent=False),
+        name="account_profile",
+    ),
     # Local Apps
-    path('', include('dashboard.urls')),
-    path('services/', include('services.urls')),
-    path('cars/', include('cars.urls')),
-    path('bookings/', include('bookings.urls')),
-    path('calculator/', include('calculator.urls')),
-    path('reports/', include('reports.urls')),
-    path('notifications/', include('notifications.urls', namespace='notifications')),
+    path("", include("dashboard.urls")),
+    path("services/", include("services.urls")),
+    path("cars/", include("cars.urls")),
+    path("bookings/", include("bookings.urls")),
+    path("calculator/", include("calculator.urls")),
+    path("reports/", include("reports.urls")),
+    path("notifications/", include("notifications.urls", namespace="notifications")),
 ]
 
 if settings.DEBUG:
