@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Notification, Review, ChatMessage, Reminder
+
+from .models import ChatMessage, Notification, Reminder, Review
 
 
 @admin.register(Notification)

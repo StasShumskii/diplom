@@ -1,11 +1,13 @@
+import json
+from decimal import Decimal
+
+from cars.models import CarBrand, CarModel, UserCar
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.http import HttpResponse
 from services.models import Service, ServiceCategory
-from cars.models import CarBrand, CarModel, UserCar
+
 from .models import CalculationLog
-from decimal import Decimal
-import json
 
 
 class CalculatorView(TemplateView):

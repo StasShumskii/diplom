@@ -1,17 +1,18 @@
 import os
-import django
 import random
 from datetime import timedelta
-from django.utils import timezone
 from decimal import Decimal
+
+import django
+from django.utils import timezone
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "auto_service.settings")
 django.setup()
 
 from accounts.models import User
-from services.models import Service, ServiceCategory, Part
-from cars.models import CarBrand, CarModel, UserCar
 from bookings.models import Booking, OrderItem
+from cars.models import CarBrand, CarModel, UserCar
+from services.models import Part, Service, ServiceCategory
 
 
 def seed_data():

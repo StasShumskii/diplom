@@ -1,11 +1,12 @@
-from django.core.management.base import BaseCommand
-from bookings.models import Booking
-from services.models import Service
-from cars.models import UserCar, CarBrand, CarModel
-from accounts.models import User
-from django.utils import timezone
-from datetime import timedelta, datetime
 import random
+from datetime import datetime, timedelta
+
+from accounts.models import User
+from bookings.models import Booking
+from cars.models import CarBrand, CarModel, UserCar
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from services.models import Service
 
 
 class Command(BaseCommand):

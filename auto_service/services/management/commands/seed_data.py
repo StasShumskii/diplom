@@ -1,8 +1,9 @@
-from django.core.management.base import BaseCommand
-from services.models import ServiceCategory, Service
-from cars.models import CarBrand, CarModel
-from django.utils import timezone
 from datetime import timedelta
+
+from cars.models import CarBrand, CarModel
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from services.models import Service, ServiceCategory
 
 
 class Command(BaseCommand):

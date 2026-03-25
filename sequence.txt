@@ -1,0 +1,67 @@
+@startuml
+title Діаграма послідовності - Автосервіс
+
+actor "Клієнт" as Client
+actor "Менеджер" as Manager
+actor "Механік" as Mechanic
+participant "Система" as System
+
+== Створення бронювання ==
+
+Client -> System: Відкрити сторінку створення бронювання
+System -> System: Отримати список автомобілів клієнта
+System -> System: Отримати заняті слоти
+System --> Client: Показати форму бронювання
+
+Client -> System: Вибрати автомобіль, дату, час, послугу
+System -> System: Валідація даних
+System -> System: Створити бронювання (статус PENDING)
+System --> Client: Перенаправити на список бронювань
+
+== Підтвердження бронювання ==
+
+Manager -> System: Переглянути список очікуючих бронювань
+System --> Manager: Показати бронювання зі статусом PENDING
+
+Manager -> System: Підтвердити бронювання
+System -> System: Змінити статус на CONFIRMED
+System -> System: Призначити механіка (опціонально)
+System -> System: Надіслати сповіщення клієнту
+System --> Manager: Підтвердження успішне
+
+== Виконання робіт ==
+
+Mechanic -> System: Переглянути призначені завдання
+System --> Mechanic: Показати завдання зі статусом CONFIRMED
+
+Mechanic -> System: Розпочати роботу (змінити статус на IN_PROGRESS)
+System -> System: Оновити статус бронювання
+System --> Mechanic: Підтвердження
+
+Mechanic -> System: Завершити роботу (змінити статус на DONE)
+System -> System: Оновити статус
+System -> System: Створити запис в історії обслуговування
+System -> System: Нарахувати бонусні бали клієнту
+System -> System: Оновити статистику менеджера
+
+== Система бонусів ==
+
+alt Нарахування балів
+    System -> System: Розрахувати бали (10% від вартості)
+    System -> System: Викликати add_points()
+    System -> System: Створити транзакцію BonusTransaction
+    System -> System: Оновити рівень клієнта
+end
+
+alt Оплата бронювання
+    System -> System: Перевірити використання балів
+    System -> System: Викликати spend_points()
+    System -> System: Зменшити бали клієнта
+end
+
+== Сповіщення ==
+
+System -> System: Створити сповіщення
+System -> System: Надіслати email клієнту
+
+@enduml

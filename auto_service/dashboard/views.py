@@ -1,16 +1,19 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
-from django.core.mail import send_mail
-from bookings.models import Booking, ServiceHistory, BonusPoints, BonusTransaction
-from notifications.models import Review, ChatMessage, Reminder, Notification, UserProposal
-from cars.models import UserCar
-from django.db.models import Sum
 from datetime import datetime, timedelta
+
+from bookings.models import (BonusPoints, BonusTransaction, Booking,
+                             ServiceHistory)
+from cars.models import UserCar
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.mail import send_mail
+from django.db.models import Sum
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.views.generic import TemplateView
+from notifications.models import (ChatMessage, Notification, Reminder, Review,
+                                  UserProposal)
 
 
 def home(request):

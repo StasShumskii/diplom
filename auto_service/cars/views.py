@@ -1,7 +1,8 @@
-from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import UserCar, CarBrand, CarModel
+from django.shortcuts import render
+
+from .models import CarBrand, CarModel, UserCar
 
 
 @login_required

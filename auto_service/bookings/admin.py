@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Booking, OrderItem, Invoice, ServiceHistory, BonusPoints, BonusTransaction
+
+from .models import (BonusPoints, BonusTransaction, Booking, Invoice,
+                     OrderItem, ServiceHistory)
 
 
 @admin.register(Booking)

@@ -1,8 +1,9 @@
-from django.core.management.base import BaseCommand
-from cars.models import CarBrand, CarModel
+import time
+
 import requests
 from bs4 import BeautifulSoup
-import time
+from cars.models import CarBrand, CarModel
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):

@@ -1,8 +1,8 @@
-from django.db import models
+from cars.models import UserCar
 from django.conf import settings
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 from services.models import Service
-from cars.models import UserCar
 
 
 class Booking(models.Model):

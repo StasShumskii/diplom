@@ -1,0 +1,71 @@
+@startuml
+left to right direction
+
+actor "Клієнт" as Client
+actor "Механік" as Mechanic
+actor "Менеджер" as Manager
+actor "Адміністратор" as Admin
+
+rectangle "Система Автосервісу" {
+    rectangle "Блок Клієнта" {
+        usecase "Реєстрація/Авторизація" as UC1
+        usecase "Управління автомобілями" as UC2
+        usecase "Перегляд послуг" as UC3
+        usecase "Створення запису на сервіс" as UC4
+        usecase "Перегляд власних записів" as UC5
+        usecase "Скасування запису" as UC6
+        usecase "Перегляд історії ТО" as UC7
+        usecase "Управління бонусами" as UC8
+        usecase "Калькуляція вартості авто" as UC9
+        usecase "Отримання повідомлень" as UC10
+    }
+
+    rectangle "Блок Механіка" {
+        usecase "Перегляд призначених завдань" as UC11
+        usecase "Оновлення статусу запису" as UC12
+        usecase "Додавання запису до історії ТО" as UC13
+    }
+
+    rectangle "Блок Менеджера" {
+        usecase "Управління записами" as UC14
+        usecase "Перегляд статистики" as UC15
+        usecase "Управління послугами" as UC16
+        usecase "Управління запчастинами" as UC17
+        usecase "Генерація рахунків" as UC21
+    }
+
+    rectangle "Блок Адміністратора" {
+        usecase "Управління користувачами" as UC18
+        usecase "Управління брендами/моделями авто" as UC19
+        usecase "Перегляд звітів" as UC20
+    }
+}
+
+Client -left-> UC1
+Client -left-> UC2
+Client -left-> UC3
+Client -left-> UC4
+Client -left-> UC5
+Client -left-> UC6
+Client -left-> UC7
+Client -left-> UC8
+Client -left-> UC9
+Client -left-> UC10
+
+Mechanic -right-> UC11
+Mechanic -right-> UC12
+Mechanic -right-> UC13
+
+Manager -down-> UC14
+Manager -down-> UC15
+Manager -down-> UC16
+Manager -down-> UC17
+Manager -down-> UC21
+
+Admin -up-> UC18
+Admin -up-> UC19
+Admin -up-> UC20
+Admin -up-> UC14
+Admin -up-> UC16
+
+@enduml

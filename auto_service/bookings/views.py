@@ -1,10 +1,12 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from datetime import datetime
+
+from cars.models import UserCar
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from datetime import datetime
-from .models import Booking
-from cars.models import UserCar
+from django.shortcuts import get_object_or_404, redirect, render
 from services.models import Service
+
+from .models import Booking
 
 
 @login_required
