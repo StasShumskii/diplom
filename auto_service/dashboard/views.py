@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
-from bookings.models import (BonusPoints, BonusTransaction, Booking,
-                             ServiceHistory)
+from bookings.models import BonusPoints, BonusTransaction, Booking, ServiceHistory
 from cars.models import UserCar
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,8 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
-from notifications.models import (ChatMessage, Notification, Reminder, Review,
-                                  UserProposal)
+from notifications.models import ChatMessage, Notification, Reminder, Review, UserProposal
 
 
 def home(request):
